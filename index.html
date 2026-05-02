@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>emwear & emchic — Quản lý sản xuất</title>
+<title>emwear & emchic</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -16,72 +16,137 @@
   --blue:#1D4ED8;--blue-bg:#EFF6FF;
   --purple:#6D28D9;--purple-bg:#F5F3FF;
   --warn:#D97706;--warn-bg:#FFFBEB;
+  --teal:#0D7377;--teal-bg:#E0F7F7;
   --r-sm:8px;--r-md:12px;--r-lg:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--accent);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:#fff;border-radius:20px;padding:36px 40px;width:340px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.25)}
+.login-logo{width:48px;height:48px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.login-logo svg{width:24px;height:24px}
+.login-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.login-users{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.user-btn{padding:14px 12px;border-radius:var(--r-md);border:2px solid var(--border-md);background:var(--surface2);cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-size:13px;font-weight:600;color:var(--text);transition:all .15s;text-align:center}
+.user-btn:hover{border-color:var(--accent);background:#fff}
+.user-btn.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+.user-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin:0 auto 6px}
+.login-pass-wrap{position:relative;margin-bottom:14px}
+.login-pass{width:100%;padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-size:14px;font-family:'Be Vietnam Pro',sans-serif;text-align:center;letter-spacing:2px}
+.login-pass:focus{outline:none;border-color:var(--accent)}
+.login-err{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px}
+.login-btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif}
+.login-btn:hover{background:#3d3530}
+
+/* HEADER */
 .header{background:var(--accent);color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50}
 .header-brand{display:flex;align-items:center;gap:10px}
 .header-logo{width:28px;height:28px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center}
 .header-title{font-size:14px;font-weight:700;letter-spacing:-.01em}
 .header-sub{font-size:11px;opacity:.55;margin-top:1px}
-.header-date{font-size:12px;opacity:.45}
+.header-right{display:flex;align-items:center;gap:12px}
+.header-user{display:flex;align-items:center;gap:7px;font-size:12px;opacity:.8}
+.header-user-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.logout-btn{font-size:11px;opacity:.6;cursor:pointer;padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-family:'Be Vietnam Pro',sans-serif}
+.logout-btn:hover{opacity:1;background:rgba(255,255,255,.1)}
+
+/* TABS */
 .tab-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex}
 .tab-btn{padding:13px 20px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;font-family:'Be Vietnam Pro',sans-serif;transition:all .15s}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
 .badge-count{background:var(--red-bg);color:var(--red);font-size:10px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:5px}
+
+/* PAGE */
 .page{max-width:1100px;margin:0 auto;padding:24px 20px}
 .section{display:none}.section.active{display:block}
 .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
-.top-bar-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.top-bar-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .section-title{font-size:18px;font-weight:700;letter-spacing:-.02em}
+
+/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:13px 15px}
 .stat-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
 .stat-val{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1}
 .stat-val.green{color:var(--green)}.stat-val.red{color:var(--red)}.stat-val.amber{color:var(--warn)}
-.filter-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+
+/* FILTERS */
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border-md);background:var(--surface);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);font-family:'Be Vietnam Pro',sans-serif;transition:all .12s}
 .filter-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.filter-chip.warn-chip.active{background:var(--warn);border-color:var(--warn)}
-.filter-chip.red-chip.active{background:var(--red);border-color:var(--red)}
-.search-input{padding:7px 12px;border:1px solid var(--border-md);border-radius:var(--r-sm);font-size:12px;font-family:'Be Vietnam Pro',sans-serif;background:var(--surface);color:var(--text);width:200px}
+.filter-chip.warn-chip.active{background:var(--warn);border-color:var(--warn);color:#fff}
+.filter-chip.red-chip.active{background:var(--red);border-color:var(--red);color:#fff}
+.filter-chip.orange-chip.active{background:#EA580C;border-color:#EA580C;color:#fff}
+.filter-chip.blue-chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.search-input{padding:7px 12px;border:1px solid var(--border-md);border-radius:var(--r-sm);font-size:12px;font-family:'Be Vietnam Pro',sans-serif;background:var(--surface);color:var(--text);width:180px}
 .search-input:focus{outline:none;border-color:var(--accent)}
+
+/* BULK BAR */
+.bulk-bar{background:var(--accent);color:#fff;border-radius:var(--r-md);padding:10px 16px;display:none;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.bulk-bar.show{display:flex}
+.bulk-bar-info{font-size:13px;font-weight:600}
+.bulk-select-wrap{display:flex;gap:6px;flex-wrap:wrap}
+.bulk-chip{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;transition:all .1s}
+.bulk-chip:hover{background:rgba(255,255,255,.15)}
+.bulk-cancel{margin-left:auto;padding:4px 10px;border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:11px;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif}
+
+/* CARDS */
 .card-list{display:flex;flex-direction:column;gap:10px}
-.order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:box-shadow .15s}
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:box-shadow .15s,border-color .15s}
 .order-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
 .order-card.warn-card{border-left:3px solid var(--warn)}
 .order-card.red-card{border-left:3px solid var(--red)}
 .order-card.done-card{border-left:3px solid var(--green)}
-.card-main{padding:14px 16px;display:flex;align-items:flex-start;gap:14px}
+.order-card.selected-card{border-color:var(--blue);box-shadow:0 0 0 2px rgba(29,78,216,.15)}
+.card-main{padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.card-check{flex-shrink:0;margin-top:2px}
+.card-check input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
 .card-left{flex:1;min-width:0}
-.card-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.card-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
 .card-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .order-code{font-size:15px;font-weight:700;letter-spacing:-.01em}
+
+/* BADGES */
 .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap}
-.badge-wait{background:var(--surface2);color:var(--text2)}
 .badge-sent{background:var(--blue-bg);color:var(--blue)}
+.badge-factory-sent{background:var(--teal-bg);color:var(--teal)}
+.badge-waiting-mat{background:var(--amber-bg);color:var(--amber)}
 .badge-up{background:var(--green-bg);color:var(--green)}
 .badge-late{background:var(--red-bg);color:var(--red)}
 .badge-warn-b{background:var(--warn-bg);color:var(--warn)}
+.badge-urgent{background:#FEF2F2;color:#DC2626;border:1px solid #FCA5A5}
 .badge-making{background:var(--purple-bg);color:var(--purple)}
 .badge-approved{background:var(--blue-bg);color:var(--blue)}
 .badge-producing{background:var(--amber-bg);color:var(--amber)}
 .badge-lot-done{background:var(--green-bg);color:var(--green)}
+.creator-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.creator-hung{background:#EFF6FF;color:#1D4ED8}
+.creator-trang{background:#FDF4FF;color:#9333EA}
+
+/* STATUS SELECT */
 .status-select{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;border:1px solid var(--border-md);cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;background:var(--surface);color:var(--text)}
 .status-select:focus{outline:none;border-color:var(--accent)}
+
+/* META */
 .card-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-bottom:8px}
 .card-meta span b{color:var(--text);font-weight:600}
-.product-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-.product-row{background:var(--surface2);border-radius:var(--r-sm);padding:8px 10px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+
+/* PRODUCTS */
+.product-list{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.product-row{background:var(--surface2);border-radius:var(--r-sm);padding:8px 10px;display:flex;align-items:flex-start;gap:10px}
 .product-num{font-size:10px;font-weight:700;color:var(--text3);background:var(--surface3);border-radius:4px;padding:2px 5px;flex-shrink:0;margin-top:1px}
 .product-info{flex:1;min-width:0}
-.product-name{font-size:13px;font-weight:600;color:var(--text)}
+.product-name{font-size:13px;font-weight:600}
 .product-sub{font-size:11px;color:var(--text2);margin-top:2px}
 .product-sizes{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
 .sz-chip{background:var(--surface);border:1px solid var(--border-md);border-radius:5px;padding:2px 7px;font-size:11px;display:flex;gap:3px}
-.sz-chip b{font-weight:700;color:var(--text)}.sz-chip span{color:var(--text2)}
+.sz-chip b{font-weight:700}.sz-chip span{color:var(--text2)}
 .measure-chip{font-size:11px;color:var(--text2);background:var(--surface2);border-radius:5px;padding:3px 8px;margin-bottom:6px;display:inline-block}
+
+/* BUTTONS */
 .btn{padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--border-md);background:var(--surface);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;transition:all .1s;white-space:nowrap}
 .btn:hover{background:var(--surface2)}.btn:active{transform:scale(.98)}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -90,11 +155,17 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
 .btn-green:hover{background:#d1ead9}
 .btn-red{background:var(--red-bg);color:var(--red);border-color:rgba(185,28,28,.2)}
 .btn-sm{padding:4px 9px;font-size:11px}
+
+/* DEADLINE BAR */
 .deadline-bar{height:3px;background:var(--surface2);border-radius:2px;margin:4px 0}
 .deadline-fill{height:3px;border-radius:2px;transition:width .3s}
+
+/* LOG */
 .log-list{display:flex;flex-direction:column;gap:3px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
 .log-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .log-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* EXPAND */
 .card-expand{border-top:1px solid var(--border);padding:12px 16px;background:var(--bg)}
 .sub-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
 .batch-list{display:flex;flex-direction:column;gap:6px}
@@ -107,13 +178,25 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
 .bsz.fail{background:var(--red-bg);color:var(--red)}
 .note-chip{background:var(--warn-bg);color:var(--warn);font-size:11px;padding:2px 7px;border-radius:5px;font-weight:500}
 .error-chip{background:var(--red-bg);color:var(--red);font-size:11px;padding:2px 7px;border-radius:5px;font-weight:500}
+
+/* PROGRESS */
 .progress-wrap{background:var(--surface2);border-radius:4px;height:5px;flex:1}
 .progress-fill{height:5px;border-radius:4px;background:var(--green);transition:width .3s}
 .progress-fill.warn{background:var(--warn)}
 .progress-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .progress-label{font-size:11px;color:var(--text3);white-space:nowrap}
+
+/* TOAST / ALERT BANNER */
+.toast-bar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:90%;max-width:560px}
+.toast{background:#fff;border:1px solid var(--border-md);border-radius:var(--r-md);padding:10px 16px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.12);pointer-events:all;display:flex;align-items:center;gap:10px;animation:slideIn .2s ease}
+.toast.warn{border-left:3px solid var(--warn);background:var(--warn-bg)}
+.toast.success{border-left:3px solid var(--green);background:var(--green-bg)}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* EMPTY */
 .empty-state{text-align:center;padding:48px;color:var(--text3)}
 .empty-icon{font-size:32px;margin-bottom:10px}
+
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .overlay.open{display:flex}
@@ -133,6 +216,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
 .size-label-txt{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px}
 .size-wrap input{width:100%;border:1px solid var(--border-md);border-radius:5px;padding:5px;font-size:14px;font-weight:700;text-align:center;font-family:'Be Vietnam Pro',sans-serif;background:var(--surface);color:var(--text)}
 .size-wrap input:focus{outline:none;border-color:var(--accent)}
+
 /* AUTO BOX */
 .auto-box{background:linear-gradient(135deg,#f5f3ff,#fff7ed);border:1px solid rgba(109,40,217,.12);border-radius:var(--r-lg);padding:16px;margin-bottom:20px}
 .auto-box-title{font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
@@ -140,17 +224,22 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
 .auto-textarea:focus{outline:none;border-color:var(--purple)}
 .auto-hint{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5}
 .auto-hint code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:monospace}
+
 /* PREVIEW */
 .preview-box{background:var(--surface);border:1px solid rgba(26,122,74,.2);border-radius:var(--r-md);padding:14px;margin-top:10px;display:none}
 .preview-title{font-size:12px;font-weight:700;color:var(--green);margin-bottom:10px}
 .preview-item{background:var(--green-bg);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:6px;font-size:12px}
+.preview-item.dup{background:var(--warn-bg);border:1px solid rgba(217,119,6,.3)}
 .preview-item:last-child{margin-bottom:0}
 .preview-code{font-weight:700;font-size:13px}
 .preview-prod{color:var(--text2);padding-left:12px;margin-top:2px}
+.preview-dup-warn{font-size:11px;color:var(--warn);font-weight:600;margin-top:4px}
+
 /* PROD EDIT */
 .prod-edit-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;margin-bottom:8px}
 .prod-edit-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .prod-edit-num{font-size:11px;font-weight:700;color:var(--text3)}
+
 /* REPORT */
 .report-table{width:100%;border-collapse:collapse;font-size:13px}
 .report-table th{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;border-bottom:1px solid var(--border-md);text-align:left}
@@ -169,6 +258,38 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h11" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <div class="login-title">emwear & emchic</div>
+    <div class="login-sub">Hệ thống quản lý sản xuất</div>
+    <div class="login-users">
+      <div class="user-btn" id="ubtn-hung" onclick="selectUser('hung')">
+        <div class="user-avatar" style="background:#DBEAFE;color:#1D4ED8">H</div>
+        Hưng
+      </div>
+      <div class="user-btn" id="ubtn-trang" onclick="selectUser('trang')">
+        <div class="user-avatar" style="background:#F3E8FF;color:#9333EA">T</div>
+        Trang
+      </div>
+    </div>
+    <div class="login-pass-wrap">
+      <input class="login-pass" type="password" id="login-pass" placeholder="Nhập mật khẩu" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <button class="login-btn" onclick="doLogin()">Đăng nhập</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-bar" id="toast-bar"></div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+
 <div class="header">
   <div class="header-brand">
     <div class="header-logo">
@@ -179,7 +300,11 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
       <div class="header-sub">Quản lý sản xuất</div>
     </div>
   </div>
-  <div class="header-date" id="hdate"></div>
+  <div class="header-right">
+    <div class="header-user" id="header-user"></div>
+    <div class="header-date" style="font-size:12px;opacity:.45" id="hdate"></div>
+    <button class="logout-btn" onclick="doLogout()">Đăng xuất</button>
+  </div>
 </div>
 
 <div class="tab-bar">
@@ -194,20 +319,19 @@ body{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;color:var(--text);ba
 <div id="sec-may" class="section active">
   <div class="auto-box">
     <div class="auto-box-title">✦ Nhập nhanh từ Zalo — dán nhiều đơn cùng lúc</div>
-    <textarea class="auto-textarea" id="auto-input" placeholder="Dán nguyên tin nhắn Zalo vào đây. Cách đơn bằng 1 dòng trống:
+    <textarea class="auto-textarea" id="auto-input" placeholder="Dán nguyên tin nhắn Zalo, cách đơn bằng 1 dòng trống:
 
 DH047282 - Gấp T5 lên
 * Váy Ngắn Tơ Bèo Ren Thêu - Trắng - M
 
 DH047314
-* Silk Bloom - Set áo lụa bèo chân váy ren (kèm hình) - Trắng - S
-* Jumpsuit Ngắn Viền Ren (Betty) - Trắng - S
+* Silk Bloom - Set áo lụa bèo (kèm hình) - Trắng - S
+* Jumpsuit Ngắn Viền Ren - Trắng - S
 
 DH047318 - 11/5 lên hàng
 - 1m62 76kg, 100-87-115
-- Blossom Garden - Váy xòe 2 dây hoa (mẫu mới, kèm hình)
-- Sky Blossom Mini - Váy ngắn hoa xanh (mẫu mới)"></textarea>
-    <div class="auto-hint">Mỗi đơn cách nhau 1 dòng trống · Dòng đầu = mã đơn + ghi chú · <code>* hoặc -</code> = sản phẩm · Số đo: <code>1m62 76kg, 100-87-115</code></div>
+- Blossom Garden - Váy xòe 2 dây hoa (mẫu mới)"></textarea>
+    <div class="auto-hint">Mỗi đơn cách 1 dòng trống · Dòng đầu = mã đơn · <code>* hoặc -</code> = sản phẩm · Số đo: <code>1m62 76kg, 100-87-115</code></div>
     <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
       <button class="btn btn-primary btn-sm" onclick="parseOrders()">Phân tích & xem trước</button>
       <button class="btn btn-sm" onclick="clearAuto()">Xoá</button>
@@ -226,19 +350,45 @@ DH047318 - 11/5 lên hàng
   <div class="top-bar">
     <div class="top-bar-left">
       <span class="section-title">Đơn may đặt</span>
-      <input class="search-input" placeholder="Tìm mã, tên hàng..." oninput="DB.smay=this.value.toLowerCase();renderMay()">
+      <input class="search-input" placeholder="Tìm mã, tên... (VD: 47319)" oninput="DB.smay=this.value.toLowerCase();renderMay()" id="s-may">
     </div>
     <button class="btn btn-primary" onclick="openMayModal()">+ Tạo thủ công</button>
   </div>
+
   <div class="stats-grid" id="stats-may"></div>
-  <div class="filter-row">
-    <button class="filter-chip active" onclick="setF('may','all',this)">Tất cả</button>
-    <button class="filter-chip" onclick="setF('may','wait',this)">Chờ gửi XW</button>
-    <button class="filter-chip" onclick="setF('may','sent',this)">Đã gửi XW</button>
-    <button class="filter-chip" onclick="setF('may','up',this)">Đã lên hàng</button>
-    <button class="filter-chip warn-chip" onclick="setF('may','near',this)">Sắp trễ (ngày 7)</button>
-    <button class="filter-chip red-chip" onclick="setF('may','late',this)">Trễ hạn (ngày 8+)</button>
+
+  <!-- Filter row 1: status -->
+  <div class="filter-bar" id="fb-may-status">
+    <button class="filter-chip active" onclick="setF('may','status','all',this)">Tất cả</button>
+    <button class="filter-chip" onclick="setF('may','status','sent',this)">Đã gửi xưởng</button>
+    <button class="filter-chip" onclick="setF('may','status','factory_sent',this)">Xưởng đã gửi</button>
+    <button class="filter-chip" onclick="setF('may','status','waiting_material',this)">Chờ NPL</button>
+    <button class="filter-chip" onclick="setF('may','status','up',this)">Đã lên hàng</button>
+    <button class="filter-chip warn-chip" onclick="setF('may','status','near',this)">Sắp trễ</button>
+    <button class="filter-chip red-chip" onclick="setF('may','status','late',this)">Trễ hạn</button>
   </div>
+  <!-- Filter row 2: date / special -->
+  <div class="filter-bar" style="margin-bottom:12px">
+    <span style="font-size:11px;color:var(--text3);font-weight:600">Lọc thêm:</span>
+    <button class="filter-chip blue-chip" id="fc-today" onclick="toggleExtra('today')">Hôm nay</button>
+    <button class="filter-chip blue-chip" id="fc-week" onclick="toggleExtra('week')">7 ngày gần</button>
+    <button class="filter-chip orange-chip" id="fc-urgent" onclick="toggleExtra('urgent')">🔥 Đơn gấp</button>
+    <button class="filter-chip" id="fc-mine" onclick="toggleExtra('mine')">Đơn của tôi</button>
+  </div>
+
+  <!-- Bulk action bar -->
+  <div class="bulk-bar" id="bulk-bar-may">
+    <span class="bulk-bar-info" id="bulk-info-may">0 đơn được chọn</span>
+    <span style="font-size:12px;opacity:.7">Đổi trạng thái:</span>
+    <div class="bulk-select-wrap">
+      <button class="bulk-chip" onclick="bulkStatus('may','sent')">Đã gửi xưởng</button>
+      <button class="bulk-chip" onclick="bulkStatus('may','factory_sent')">Xưởng đã gửi</button>
+      <button class="bulk-chip" onclick="bulkStatus('may','waiting_material')">Chờ NPL</button>
+      <button class="bulk-chip" onclick="bulkStatus('may','up')">Đã lên hàng</button>
+    </div>
+    <button class="bulk-cancel" onclick="clearSelection('may')">Bỏ chọn</button>
+  </div>
+
   <div class="card-list" id="list-may"></div>
 </div>
 
@@ -249,29 +399,43 @@ DH047318 - 11/5 lên hàng
     <textarea class="auto-textarea" id="gc-auto-input" style="min-height:80px" placeholder="GC001 - Shop Hương - 25000đ
 * Áo sơ mi trắng - S:20 M:30 L:15 XL:5
 * Quần âu đen - M:10 L:10"></textarea>
-    <div class="auto-hint">Dòng 1: <code>mã - tên shop - đơn giá</code> · Dòng SP: <code>* tên - S:n M:n L:n XL:n</code></div>
+    <div class="auto-hint">Dòng 1: <code>mã - tên shop - đơn giá</code> · SP: <code>* tên - S:n M:n L:n XL:n</code></div>
     <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
       <button class="btn btn-primary btn-sm" onclick="parseGC()">Tạo đơn</button>
       <button class="btn btn-sm" onclick="document.getElementById('gc-auto-input').value=''">Xoá</button>
       <span id="gc-ok" style="font-size:11px;color:var(--green);display:none;font-weight:600"></span>
     </div>
   </div>
+
   <div class="top-bar">
     <div class="top-bar-left">
       <span class="section-title">Đơn gia công</span>
-      <input class="search-input" placeholder="Tìm mã, shop..." oninput="DB.sgc=this.value.toLowerCase();renderGC()">
+      <input class="search-input" placeholder="Tìm mã, shop... (VD: GC001)" oninput="DB.sgc=this.value.toLowerCase();renderGC()" id="s-gc">
     </div>
     <button class="btn btn-primary" onclick="openGCModal()">+ Tạo thủ công</button>
   </div>
   <div class="stats-grid" id="stats-gc"></div>
-  <div class="filter-row">
-    <button class="filter-chip active" onclick="setF('gc','all',this)">Tất cả</button>
-    <button class="filter-chip" onclick="setF('gc','making',this)">Đang đấu mẫu</button>
-    <button class="filter-chip" onclick="setF('gc','approved',this)">Đã duyệt</button>
-    <button class="filter-chip" onclick="setF('gc','producing',this)">Đang sản xuất</button>
-    <button class="filter-chip" onclick="setF('gc','done',this)">Hoàn thành lô</button>
-    <button class="filter-chip red-chip" onclick="setF('gc','partial',this)">Chưa đủ hàng</button>
+  <div class="filter-bar" id="fb-gc-status">
+    <button class="filter-chip active" onclick="setF('gc','status','all',this)">Tất cả</button>
+    <button class="filter-chip" onclick="setF('gc','status','making',this)">Đang đấu mẫu</button>
+    <button class="filter-chip" onclick="setF('gc','status','approved',this)">Đã duyệt</button>
+    <button class="filter-chip" onclick="setF('gc','status','producing',this)">Đang sản xuất</button>
+    <button class="filter-chip" onclick="setF('gc','status','done',this)">Hoàn thành lô</button>
+    <button class="filter-chip red-chip" onclick="setF('gc','status','partial',this)">Chưa đủ hàng</button>
   </div>
+
+  <div class="bulk-bar" id="bulk-bar-gc">
+    <span class="bulk-bar-info" id="bulk-info-gc">0 đơn được chọn</span>
+    <span style="font-size:12px;opacity:.7">Đổi trạng thái:</span>
+    <div class="bulk-select-wrap">
+      <button class="bulk-chip" onclick="bulkStatus('gc','making')">Đang đấu mẫu</button>
+      <button class="bulk-chip" onclick="bulkStatus('gc','approved')">Đã duyệt</button>
+      <button class="bulk-chip" onclick="bulkStatus('gc','producing')">Đang sản xuất</button>
+      <button class="bulk-chip" onclick="bulkStatus('gc','done')">Hoàn thành lô</button>
+    </div>
+    <button class="bulk-cancel" onclick="clearSelection('gc')">Bỏ chọn</button>
+  </div>
+
   <div class="card-list" id="list-gc"></div>
 </div>
 
@@ -286,8 +450,7 @@ DH047318 - 11/5 lên hàng
   </div>
   <div id="rpt-content"></div>
 </div>
-
-</div><!-- end page -->
+</div></div><!-- end page / app -->
 
 <!-- MODAL ĐƠN MAY -->
 <div class="overlay" id="modal-may">
@@ -305,12 +468,13 @@ DH047318 - 11/5 lên hàng
   <div class="form-row c2">
     <div class="form-group"><label class="form-label">Trạng thái</label>
       <select class="form-input" id="mm-status">
-        <option value="wait">Chờ gửi xưởng</option>
         <option value="sent">Đã gửi xưởng</option>
+        <option value="factory_sent">Xưởng đã gửi</option>
+        <option value="waiting_material">Đang chờ NPL</option>
         <option value="up">Đã lên hàng</option>
       </select>
     </div>
-    <div class="form-group"><label class="form-label">Ghi chú nhanh</label><input class="form-input" id="mm-qnote" placeholder="Gấp, ưu tiên..."></div>
+    <div class="form-group"><label class="form-label">Ghi chú nhanh (gấp, ưu tiên...)</label><input class="form-input" id="mm-qnote" placeholder="Gấp T5, ưu tiên..."></div>
   </div>
   <div class="form-group">
     <label class="form-label">Số đo khách (nếu có)</label>
@@ -346,7 +510,7 @@ DH047318 - 11/5 lên hàng
   </div>
   <div class="form-row c3">
     <div class="form-group"><label class="form-label">Ngày đặt</label><input class="form-input" type="date" id="mg-date"></div>
-    <div class="form-group"><label class="form-label">Ngày dự kiến lên hàng</label><input class="form-input" type="date" id="mg-eta"></div>
+    <div class="form-group"><label class="form-label">Dự kiến lên hàng</label><input class="form-input" type="date" id="mg-eta"></div>
     <div class="form-group"><label class="form-label">Đơn giá GC (VND)</label><input class="form-input" type="number" id="mg-price" placeholder="25000"></div>
   </div>
   <div class="form-group"><label class="form-label">Trạng thái</label>
@@ -359,7 +523,7 @@ DH047318 - 11/5 lên hàng
   </div>
   <div class="form-group">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <label class="form-label" style="margin:0">Sản phẩm gia công *</label>
+      <label class="form-label" style="margin:0">Sản phẩm *</label>
       <button class="btn btn-sm" onclick="addGPR()">+ Thêm SP</button>
     </div>
     <div id="gc-prod-rows"></div>
@@ -372,7 +536,7 @@ DH047318 - 11/5 lên hàng
 </div>
 </div>
 
-<!-- MODAL NHẬP ĐỢT HÀNG GC -->
+<!-- MODAL NHẬP ĐỢT HÀNG -->
 <div class="overlay" id="modal-batch">
 <div class="modal modal-sm">
   <div class="modal-title">Nhập đợt hàng về</div>
@@ -382,7 +546,7 @@ DH047318 - 11/5 lên hàng
     <div class="form-group"><label class="form-label">Ngày giao shop</label><input class="form-input" type="date" id="b-deliver"></div>
   </div>
   <div class="form-group">
-    <label class="form-label" style="color:var(--green)">QC ĐẠT — số lượng theo size</label>
+    <label class="form-label" style="color:var(--green)">QC ĐẠT theo size</label>
     <div class="size-grid">
       <div class="size-wrap"><div class="size-label-txt" style="color:var(--green)">S ✓</div><input type="number" id="bp-S" placeholder="0" min="0"></div>
       <div class="size-wrap"><div class="size-label-txt" style="color:var(--green)">M ✓</div><input type="number" id="bp-M" placeholder="0" min="0"></div>
@@ -391,7 +555,7 @@ DH047318 - 11/5 lên hàng
     </div>
   </div>
   <div class="form-group">
-    <label class="form-label" style="color:var(--red)">QC LỖI / trả về — theo size</label>
+    <label class="form-label" style="color:var(--red)">QC LỖI / trả về theo size</label>
     <div class="size-grid">
       <div class="size-wrap"><div class="size-label-txt" style="color:var(--red)">S ✗</div><input type="number" id="bf-S" placeholder="0" min="0"></div>
       <div class="size-wrap"><div class="size-label-txt" style="color:var(--red)">M ✗</div><input type="number" id="bf-M" placeholder="0" min="0"></div>
@@ -409,13 +573,75 @@ DH047318 - 11/5 lên hàng
 </div>
 
 <script>
+// ============================================================
+// AUTH
+// ============================================================
+var USERS={hung:{name:'Hưng',pass:'hung@2026',color:'#1D4ED8',bg:'#DBEAFE'},trang:{name:'Trang',pass:'trang@2026',color:'#9333EA',bg:'#F3E8FF'}};
+var SESSION_HOURS=8;
+var currentUser=null;
+var selectedUser=null;
+
+function selectUser(u){
+  selectedUser=u;
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('ubtn-'+u).classList.add('selected');
+  document.getElementById('login-pass').focus();
+  document.getElementById('login-err').textContent='';
+}
+
+function doLogin(){
+  if(!selectedUser){document.getElementById('login-err').textContent='Vui lòng chọn người dùng';return;}
+  var pass=document.getElementById('login-pass').value;
+  if(pass!==USERS[selectedUser].pass){document.getElementById('login-err').textContent='Mật khẩu không đúng';document.getElementById('login-pass').value='';return;}
+  var exp=Date.now()+SESSION_HOURS*3600000;
+  localStorage.setItem('em_session',JSON.stringify({user:selectedUser,exp}));
+  startApp(selectedUser);
+}
+
+function checkSession(){
+  var raw=localStorage.getItem('em_session');
+  if(!raw)return false;
+  try{var s=JSON.parse(raw);if(Date.now()<s.exp){startApp(s.user);return true;}}catch(e){}
+  localStorage.removeItem('em_session');return false;
+}
+
+function startApp(u){
+  currentUser=u;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  var usr=USERS[u];
+  document.getElementById('header-user').innerHTML=
+    '<div class="header-user-dot" style="background:'+usr.bg+';color:'+usr.color+'">'+usr.name[0]+'</div>'+
+    '<span>'+usr.name+'</span>';
+  var d=new Date();
+  document.getElementById('hdate').textContent=['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1);
+  renderMay();renderGC();updateBadges();
+}
+
+function doLogout(){
+  localStorage.removeItem('em_session');
+  currentUser=null;selectedUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-err').textContent='';
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+}
+
+// ============================================================
+// DATA
+// ============================================================
 var DB={
-  may:JSON.parse(localStorage.getItem('em3_may')||'[]'),
-  gc:JSON.parse(localStorage.getItem('em3_gc')||'[]'),
-  fmay:'all',fgc:'all',smay:'',sgc:'',
+  may:JSON.parse(localStorage.getItem('em4_may')||'[]'),
+  gc:JSON.parse(localStorage.getItem('em4_gc')||'[]'),
+  fmay:{status:'all'},fgc:{status:'all'},
+  extra:{today:false,week:false,urgent:false,mine:false},
+  smay:'',sgc:'',
+  selMay:new Set(),selGC:new Set(),
   batchTarget:null,editMay:null,editGC:null,parsed:[]
 };
-function save(){localStorage.setItem('em3_may',JSON.stringify(DB.may));localStorage.setItem('em3_gc',JSON.stringify(DB.gc));}
+
+function save(){localStorage.setItem('em4_may',JSON.stringify(DB.may));localStorage.setItem('em4_gc',JSON.stringify(DB.gc));}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 function td(){return new Date().toISOString().slice(0,10);}
 function fD(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1];}
@@ -425,9 +651,34 @@ function dUntil(d){if(!d)return null;return Math.floor((new Date(d)-new Date(td(
 function szTotal(sz){return(sz.S||0)+(sz.M||0)+(sz.L||0)+(sz.XL||0);}
 function prodsTotal(prods){return(prods||[]).reduce((s,p)=>s+szTotal(p.sizes||{}),0);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function isUrgent(d){return/gấp|urgent|nhanh|gap/i.test(d.quicknote||'');}
 
-var MST={wait:{l:'Chờ gửi XW',c:'badge-wait'},sent:{l:'Đã gửi XW',c:'badge-sent'},up:{l:'Đã lên hàng',c:'badge-up'}};
-var GST={making:{l:'Đang đấu mẫu',c:'badge-making'},approved:{l:'Đã duyệt đấu',c:'badge-approved'},producing:{l:'Đang sản xuất',c:'badge-producing'},done:{l:'Hoàn thành lô',c:'badge-lot-done'}};
+// Smart search: strip non-digit prefix so "47319" matches "DH047319"
+function smartMatch(text, q){
+  if(!q)return true;
+  var t=(text||'').toLowerCase();
+  if(t.includes(q))return true;
+  // strip leading letters from query
+  var qNum=q.replace(/^[a-z]+/,'');
+  if(qNum&&t.includes(qNum))return true;
+  // strip leading letters from text parts too
+  var tNum=t.replace(/[a-z]/g,'');
+  if(qNum&&tNum.includes(qNum))return true;
+  return false;
+}
+
+var MST={
+  sent:{l:'Đã gửi xưởng',c:'badge-sent'},
+  factory_sent:{l:'Xưởng đã gửi',c:'badge-factory-sent'},
+  waiting_material:{l:'Chờ NPL',c:'badge-waiting-mat'},
+  up:{l:'Đã lên hàng',c:'badge-up'}
+};
+var GST={
+  making:{l:'Đang đấu mẫu',c:'badge-making'},
+  approved:{l:'Đã duyệt đấu',c:'badge-approved'},
+  producing:{l:'Đang sản xuất',c:'badge-producing'},
+  done:{l:'Hoàn thành lô',c:'badge-lot-done'}
+};
 
 function getAlert(d){
   if(d.status==='up')return null;
@@ -440,7 +691,21 @@ function getAlert(d){
 function gcPass(d){return(d.batches||[]).reduce((s,b)=>s+szTotal(b.pass||{}),0);}
 function gcFail(d){return(d.batches||[]).reduce((s,b)=>s+szTotal(b.fail||{}),0);}
 
-// TABS
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg,type,dur){
+  var bar=document.getElementById('toast-bar');
+  var el=document.createElement('div');
+  el.className='toast '+(type||'');
+  el.innerHTML=msg;
+  bar.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},(dur||4000));
+}
+
+// ============================================================
+// TAB
+// ============================================================
 function switchTab(t){
   ['may','gc','bc'].forEach(x=>{
     document.getElementById('sec-'+x).classList.toggle('active',x===t);
@@ -457,12 +722,68 @@ function updateBadges(){
   cg.style.display=ga>0?'':'none';cg.textContent=ga;
 }
 
+// ============================================================
+// FILTER
+// ============================================================
+function setF(type,dim,val,el){
+  if(type==='may')DB.fmay[dim]=val;else DB.fgc[dim]=val;
+  el.closest('.filter-bar').querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(type==='may')renderMay();else renderGC();
+}
+
+function toggleExtra(key){
+  DB.extra[key]=!DB.extra[key];
+  document.getElementById('fc-'+key).classList.toggle('active',DB.extra[key]);
+  renderMay();
+}
+
+// ============================================================
+// SELECTION / BULK
+// ============================================================
+function toggleSel(type,id){
+  var s=type==='may'?DB.selMay:DB.selGC;
+  if(s.has(id))s.delete(id);else s.add(id);
+  updateBulkBar(type);
+  if(type==='may')renderMay();else renderGC();
+}
+function clearSelection(type){
+  if(type==='may')DB.selMay.clear();else DB.selGC.clear();
+  updateBulkBar(type);
+  if(type==='may')renderMay();else renderGC();
+}
+function updateBulkBar(type){
+  var s=type==='may'?DB.selMay:DB.selGC;
+  var bar=document.getElementById('bulk-bar-'+type);
+  var info=document.getElementById('bulk-info-'+type);
+  bar.classList.toggle('show',s.size>0);
+  info.textContent=s.size+' đơn được chọn';
+}
+function bulkStatus(type,status){
+  var s=type==='may'?DB.selMay:DB.selGC;
+  var list=type==='may'?DB.may:DB.gc;
+  var st=type==='may'?(MST[status]||{}).l:(GST[status]||{}).l;
+  s.forEach(id=>{
+    var d=list.find(x=>x.id===id);if(!d)return;
+    d.status=status;
+    d.log=d.log||[];
+    d.log.push({date:td(),action:st+' (hàng loạt)',by:currentUser});
+  });
+  save();clearSelection(type);
+  toast('Đã cập nhật '+s.size+' đơn → '+st,'success');
+  if(type==='may'){renderMay();updateBadges();}else{renderGC();updateBadges();}
+}
+
+// ============================================================
 // MODAL
+// ============================================================
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
 
+// ============================================================
 // PRODUCT ROWS (May)
+// ============================================================
 var prs=[];
 function addPR(d){
   var id='pr'+uid();prs.push(id);
@@ -486,7 +807,7 @@ function openMayModal(editId){
   document.getElementById('mm-date').value=d?d.date:td();
   document.getElementById('mm-deadline').value=d?d.deadline:'';
   document.getElementById('mm-factory').value=d?d.factory:'';
-  document.getElementById('mm-status').value=d?d.status:'wait';
+  document.getElementById('mm-status').value=d?d.status:'sent';
   document.getElementById('mm-qnote').value=d?d.quicknote:'';
   document.getElementById('mm-height').value=d&&d.ms?d.ms.h:'';
   document.getElementById('mm-weight').value=d&&d.ms?d.ms.w:'';
@@ -495,6 +816,7 @@ function openMayModal(editId){
   (d&&d.prods?d.prods:[{}]).forEach(p=>addPR(p));
   openModal('modal-may');
 }
+
 function saveMay(){
   var code=document.getElementById('mm-code').value.trim();
   if(!code){alert('Vui lòng nhập mã đơn');return;}
@@ -502,17 +824,19 @@ function saveMay(){
   if(!prods.length){alert('Vui lòng nhập ít nhất 1 sản phẩm');return;}
   var ns=document.getElementById('mm-status').value;
   var h=document.getElementById('mm-height').value.trim(),w=document.getElementById('mm-weight').value.trim(),m=document.getElementById('mm-measure').value.trim();
-  var old=DB.editMay?(DB.may.find(x=>x.id===DB.editMay)||{}).log||[]:[]; 
-  var obj={id:DB.editMay||uid(),code,date:document.getElementById('mm-date').value,deadline:document.getElementById('mm-deadline').value,factory:document.getElementById('mm-factory').value,status:ns,quicknote:document.getElementById('mm-qnote').value,ms:(h||w||m)?{h,w,m}:null,prods,error:document.getElementById('mm-error').value,log:old,createdAt:DB.editMay?(DB.may.find(x=>x.id===DB.editMay)||{}).createdAt||td():td()};
+  var oldLog=DB.editMay?(DB.may.find(x=>x.id===DB.editMay)||{}).log||[]:[]; 
   var oldSt=DB.editMay?(DB.may.find(x=>x.id===DB.editMay)||{}).status:null;
-  if(oldSt!==ns)obj.log.push({date:td(),action:(MST[ns]||{}).l||ns});
+  var obj={id:DB.editMay||uid(),code,date:document.getElementById('mm-date').value,deadline:document.getElementById('mm-deadline').value,factory:document.getElementById('mm-factory').value,status:ns,quicknote:document.getElementById('mm-qnote').value,ms:(h||w||m)?{h,w,m}:null,prods,error:document.getElementById('mm-error').value,log:oldLog,createdBy:DB.editMay?(DB.may.find(x=>x.id===DB.editMay)||{}).createdBy||currentUser:currentUser,createdAt:DB.editMay?(DB.may.find(x=>x.id===DB.editMay)||{}).createdAt||td():td()};
+  if(oldSt!==ns)obj.log.push({date:td(),action:(MST[ns]||{}).l||ns,by:currentUser});
   if(DB.editMay){var i=DB.may.findIndex(x=>x.id===DB.editMay);if(i>-1)DB.may[i]=obj;}else DB.may.push(obj);
   save();closeModal('modal-may');renderMay();updateBadges();
 }
 function delMay(id){if(confirm('Xoá đơn này?')){DB.may=DB.may.filter(x=>x.id!==id);save();renderMay();updateBadges();}}
-function chStMay(id,v){var d=DB.may.find(x=>x.id===id);if(!d)return;d.log=d.log||[];d.log.push({date:td(),action:(MST[v]||{}).l||v});d.status=v;save();renderMay();updateBadges();}
+function chStMay(id,v){var d=DB.may.find(x=>x.id===id);if(!d)return;d.log=d.log||[];d.log.push({date:td(),action:(MST[v]||{}).l||v,by:currentUser});d.status=v;save();renderMay();updateBadges();}
 
+// ============================================================
 // GC PRODUCT ROWS
+// ============================================================
 var gps=[];
 function addGPR(d){
   var id='gp'+uid();gps.push(id);
@@ -545,14 +869,16 @@ function saveGC(){
   if(!code){alert('Vui lòng nhập mã đơn');return;}
   var prods=getGPRs();
   if(!prods.length){alert('Vui lòng nhập ít nhất 1 sản phẩm');return;}
-  var obj={id:DB.editGC||uid(),code,shop:document.getElementById('mg-shop').value,date:document.getElementById('mg-date').value,eta:document.getElementById('mg-eta').value,price:parseInt(document.getElementById('mg-price').value)||0,status:document.getElementById('mg-status').value,note:document.getElementById('mg-note').value,prods,batches:DB.editGC?(DB.gc.find(x=>x.id===DB.editGC)||{}).batches||[]:[],createdAt:DB.editGC?(DB.gc.find(x=>x.id===DB.editGC)||{}).createdAt||td():td()};
+  var obj={id:DB.editGC||uid(),code,shop:document.getElementById('mg-shop').value,date:document.getElementById('mg-date').value,eta:document.getElementById('mg-eta').value,price:parseInt(document.getElementById('mg-price').value)||0,status:document.getElementById('mg-status').value,note:document.getElementById('mg-note').value,prods,batches:DB.editGC?(DB.gc.find(x=>x.id===DB.editGC)||{}).batches||[]:[],createdBy:DB.editGC?(DB.gc.find(x=>x.id===DB.editGC)||{}).createdBy||currentUser:currentUser,createdAt:DB.editGC?(DB.gc.find(x=>x.id===DB.editGC)||{}).createdAt||td():td()};
   if(DB.editGC){var i=DB.gc.findIndex(x=>x.id===DB.editGC);if(i>-1)DB.gc[i]=obj;}else DB.gc.push(obj);
   save();closeModal('modal-gc');renderGC();updateBadges();
 }
 function delGC(id){if(confirm('Xoá đơn này?')){DB.gc=DB.gc.filter(x=>x.id!==id);save();renderGC();updateBadges();}}
 function chStGC(id,v){var d=DB.gc.find(x=>x.id===id);if(!d)return;d.status=v;save();renderGC();updateBadges();}
 
+// ============================================================
 // BATCH
+// ============================================================
 function openBatch(gcId){
   DB.batchTarget=gcId;
   document.getElementById('b-date').value=td();
@@ -570,7 +896,9 @@ function saveBatch(){
   save();closeModal('modal-batch');renderGC();updateBadges();
 }
 
-// PARSE ZALO ORDERS
+// ============================================================
+// PARSE ZALO
+// ============================================================
 function parseOrders(){
   var raw=document.getElementById('auto-input').value.trim();
   if(!raw){alert('Vui lòng nhập nội dung');return;}
@@ -579,92 +907,89 @@ function parseOrders(){
   blocks.forEach(block=>{
     var lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
     if(!lines.length)return;
-    // header line
     var hdr=lines[0];
     var sep=hdr.split(/\s*[-–—]\s*/);
-    var code=sep[0].trim();
-    var quicknote=sep.slice(1).join(' - ').trim();
-    // extract deadline from quicknote or anywhere
+    var code=sep[0].trim(),quicknote=sep.slice(1).join(' - ').trim();
     var deadline='';
     var dm=block.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
     if(dm){var dy=parseInt(dm[1]),dmo=parseInt(dm[2]),yr=dm[3]?parseInt(dm[3]):new Date().getFullYear();if(yr<100)yr+=2000;deadline=yr+'-'+(dmo<10?'0'+dmo:dmo)+'-'+(dy<10?'0'+dy:dy);}
-    // rest of lines
     var prods=[],ms=null;
     lines.slice(1).forEach(line=>{
-      // measurement: has kg
       if(/\d+\s*kg/i.test(line)){
-        var hm=line.match(/(\d+(?:[.,]\d+)?)\s*m/i);
-        var wm=line.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
-        var szm=line.match(/(\d{2,3})\s*[-–]\s*(\d{2,3})\s*[-–]\s*(\d{2,3})/);
-        ms={h:hm?hm[1]+'cm':'',w:wm?wm[1]+'kg':'',m:szm?szm[0]:''};
-        return;
+        var hm=line.match(/(\d+(?:[.,]\d+)?)\s*m/i),wm=line.match(/(\d+(?:[.,]\d+)?)\s*kg/i),szm=line.match(/(\d{2,3})\s*[-–]\s*(\d{2,3})\s*[-–]\s*(\d{2,3})/);
+        ms={h:hm?hm[1]+'cm':'',w:wm?wm[1]+'kg':'',m:szm?szm[0]:''};return;
       }
-      // 3-number measurement line
-      if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}/.test(line)){
-        if(!ms)ms={h:'',w:'',m:''};ms.m=line.match(/(\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3})/)[0];return;
-      }
-      // product line
-      if(/^[\*\-•]\s+/.test(line)){
-        var clean=line.replace(/^[\*\-•]\s+/,'').trim();
+      if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}/.test(line)){if(!ms)ms={h:'',w:'',m:''};ms.m=line.match(/(\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3})/)[0];return;}
+      // FIX: \s* instead of \s+ to handle *NoSpace
+      if(/^[\*\-•]\s*\S/.test(line)){
+        var clean=line.replace(/^[\*\-•]\s*/,'').trim();
         var sizes={};
         var szM=clean.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/gi);
         if(szM)szM.forEach(sm=>{var m2=sm.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/i);if(m2)sizes[m2[1].toUpperCase()]=parseInt(m2[2]);});
-        // extract notes in ()
         var noteM=clean.match(/\(([^)]+)\)/g);
         var note=noteM?noteM.join(' '):'';
-        // split by dash to get name / color / size-letter
         var parts=clean.replace(/\([^)]+\)/g,'').split(/\s*-\s*/).map(p=>p.trim()).filter(Boolean);
-        var name=parts[0]||'';
-        var color='';
+        var name=parts[0]||'',color='';
         parts.slice(1).forEach(p=>{
           if(/^(S|M|L|XL)$/i.test(p)){if(!szM)sizes[p.toUpperCase()]=1;}
-          else if(!color)color=p;
+          else if(!color&&!/\d+/.test(p))color=p;
         });
+        name=name.replace(/\([^)]+\)/g,'').trim();
         if(name)prods.push({name,color,sizes,note});
       }
     });
     if(!code)return;
-    DB.parsed.push({code,quicknote,deadline,ms,prods});
+    // check duplicate
+    var isDup=DB.may.some(x=>x.code.toLowerCase()===code.toLowerCase());
+    DB.parsed.push({code,quicknote,deadline,ms,prods,isDup});
   });
-  if(!DB.parsed.length){alert('Không nhận diện được đơn nào. Kiểm tra định dạng.');return;}
+  if(!DB.parsed.length){alert('Không nhận diện được đơn nào');return;}
   showPreview();
 }
 
 function showPreview(){
   var box=document.getElementById('preview-box');
-  document.getElementById('preview-title').textContent='Tìm thấy '+DB.parsed.length+' đơn — xác nhận trước khi tạo:';
+  var dupCount=DB.parsed.filter(x=>x.isDup).length;
+  document.getElementById('preview-title').textContent='Tìm thấy '+DB.parsed.length+' đơn'+(dupCount?' (⚠ '+dupCount+' mã có thể trùng)':'')+' — xác nhận trước khi tạo:';
   document.getElementById('preview-list').innerHTML=DB.parsed.map(d=>
-    '<div class="preview-item">'+
-      '<div class="preview-code">'+esc(d.code)+(d.quicknote?' <span style="font-weight:400;color:var(--green-dark)">— '+esc(d.quicknote)+'</span>':'')+(d.deadline?' <span style="font-size:11px">📅 '+fDF(d.deadline)+'</span>':'')+'</div>'+
+    '<div class="preview-item'+(d.isDup?' dup':'')+'">'+
+      '<div class="preview-code">'+esc(d.code)+(d.quicknote?' <span style="font-weight:400">— '+esc(d.quicknote)+'</span>':'')+(d.deadline?' <span style="font-size:11px;color:var(--green)">📅 '+fDF(d.deadline)+'</span>':'')+(isUrgent(d)?'<span class="badge badge-urgent" style="margin-left:4px">🔥 Gấp</span>':'')+'</div>'+
+      (d.isDup?'<div class="preview-dup-warn">⚠ Mã đơn này có thể đã tồn tại trong hệ thống</div>':'')+
       (d.ms?'<div style="font-size:11px;color:var(--text3);margin-top:2px">📏 '+[d.ms.h,d.ms.w,d.ms.m].filter(Boolean).join(' · ')+'</div>':'')+
       '<div>'+d.prods.map(p=>'<div class="preview-prod">• '+esc(p.name)+(p.color?' · '+esc(p.color):'')+(Object.keys(p.sizes||{}).length?' · '+Object.entries(p.sizes).map(([s,q])=>s+':'+q).join(' '):'')+(p.note?' ('+esc(p.note)+')':'')+'</div>').join('')+'</div>'+
     '</div>'
   ).join('');
   box.style.display='block';
 }
+
 function confirmCreate(){
+  var dupCodes=[];
   DB.parsed.forEach(d=>{
-    DB.may.push({id:uid(),code:d.code,date:td(),deadline:d.deadline||'',factory:'',status:'wait',quicknote:d.quicknote||'',ms:d.ms||null,prods:d.prods||[],error:'',log:[{date:td(),action:'Tạo từ nhập nhanh Zalo'}],createdAt:td()});
+    if(!d.code)return;
+    if(d.isDup)dupCodes.push(d.code);
+    DB.may.push({id:uid(),code:d.code,date:td(),deadline:d.deadline||'',factory:'',status:'sent',quicknote:d.quicknote||'',ms:d.ms||null,prods:d.prods||[],error:'',log:[{date:td(),action:'Tạo từ nhập nhanh Zalo',by:currentUser}],createdBy:currentUser,createdAt:td()});
   });
   save();cancelPreview();document.getElementById('auto-input').value='';
-  var msg=document.getElementById('parse-ok');msg.textContent='Đã tạo '+DB.parsed.length+' đơn thành công!';msg.style.display='inline';setTimeout(()=>msg.style.display='none',4000);
+  var msg=document.getElementById('parse-ok');msg.textContent='Đã tạo '+DB.parsed.length+' đơn!';msg.style.display='inline';setTimeout(()=>msg.style.display='none',4000);
+  if(dupCodes.length)setTimeout(()=>toast('⚠ Các mã sau có thể bị trùng: <b>'+dupCodes.join(', ')+'</b><br>Vui lòng kiểm tra lại.','warn',8000),500);
   DB.parsed=[];renderMay();updateBadges();
 }
 function cancelPreview(){document.getElementById('preview-box').style.display='none';}
 function clearAuto(){document.getElementById('auto-input').value='';cancelPreview();}
 
+// ============================================================
 // PARSE GC
+// ============================================================
 function parseGC(){
   var raw=document.getElementById('gc-auto-input').value.trim();
   if(!raw){alert('Vui lòng nhập nội dung');return;}
   var lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
-  var hdr=lines[0];
-  var hp=hdr.split(/\s*[-–—]\s*/);
+  var hdr=lines[0],hp=hdr.split(/\s*[-–—]\s*/);
   var code=hp[0].trim(),shop=hp[1]||'',price=0;
   var pm=hdr.match(/(\d[\d.,]+)\s*[đd]/i);if(pm)price=parseInt(pm[1].replace(/[.,]/g,''))||0;
   var prods=[];
   lines.slice(1).forEach(line=>{
-    if(!/^[\*\-•]/.test(line))return;
+    if(!/^[\*\-•]\s*\S/.test(line))return;
     var clean=line.replace(/^[\*\-•]\s*/,'').trim();
     var sizes={};var szM=clean.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/gi);
     if(szM)szM.forEach(sm=>{var m2=sm.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/i);if(m2)sizes[m2[1].toUpperCase()]=parseInt(m2[2]);});
@@ -673,119 +998,149 @@ function parseGC(){
   });
   if(!code){alert('Không tìm thấy mã đơn');return;}
   if(!prods.length)prods=[{name:'(chưa nhập sản phẩm)',sizes:{}}];
-  DB.gc.push({id:uid(),code,shop,date:td(),eta:'',price,status:'making',note:'',prods,batches:[],createdAt:td()});
+  var isDup=DB.gc.some(x=>x.code.toLowerCase()===code.toLowerCase());
+  DB.gc.push({id:uid(),code,shop,date:td(),eta:'',price,status:'making',note:'',prods,batches:[],createdBy:currentUser,createdAt:td()});
   save();document.getElementById('gc-auto-input').value='';
   var msg=document.getElementById('gc-ok');msg.textContent='Đã tạo đơn '+code+'!';msg.style.display='inline';setTimeout(()=>msg.style.display='none',3000);
+  if(isDup)setTimeout(()=>toast('⚠ Mã <b>'+code+'</b> có thể đã tồn tại trong hệ thống. Kiểm tra lại.','warn',7000),400);
   renderGC();updateBadges();
 }
 
-// FILTER
-function setF(type,val,el){
-  if(type==='may')DB.fmay=val;else DB.fgc=val;
-  el.closest('.filter-row').querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  if(type==='may')renderMay();else renderGC();
-}
-
+// ============================================================
 // RENDER MAY
+// ============================================================
 function renderMay(){
   var list=DB.may;
-  var w=list.filter(d=>d.status==='wait').length,s=list.filter(d=>d.status==='sent').length,u=list.filter(d=>d.status==='up').length,late=list.filter(d=>getAlert(d)==='late').length;
-  document.getElementById('stats-may').innerHTML=sCard('Tổng đơn',list.length)+sCard('Chờ gửi',w)+sCard('Đã gửi XW',s)+sCard('Đã lên hàng',u,'green')+sCard('Trễ hạn',late,'red');
+  var w=list.filter(d=>d.status==='sent').length,fs=list.filter(d=>d.status==='factory_sent').length;
+  var wm=list.filter(d=>d.status==='waiting_material').length,u=list.filter(d=>d.status==='up').length;
+  var late=list.filter(d=>getAlert(d)==='late').length;
+  document.getElementById('stats-may').innerHTML=sCard('Tổng đơn',list.length)+sCard('Đã gửi XW',w)+sCard('XW đã gửi',fs,'amber')+sCard('Đã lên hàng',u,'green')+sCard('Trễ hạn',late,'red');
+
   var fil=list.filter(d=>{
-    var a=getAlert(d);
-    if(DB.fmay==='wait')return d.status==='wait';
-    if(DB.fmay==='sent')return d.status==='sent';
-    if(DB.fmay==='up')return d.status==='up';
-    if(DB.fmay==='near')return a==='near';
-    if(DB.fmay==='late')return a==='late';
+    var a=getAlert(d),st=DB.fmay.status;
+    if(st==='sent')return d.status==='sent';
+    if(st==='factory_sent')return d.status==='factory_sent';
+    if(st==='waiting_material')return d.status==='waiting_material';
+    if(st==='up')return d.status==='up';
+    if(st==='near')return a==='near';
+    if(st==='late')return a==='late';
     return true;
   });
-  if(DB.smay)fil=fil.filter(d=>(d.code+(d.prods||[]).map(p=>p.name+p.color).join('')+(d.factory||'')+(d.quicknote||'')).toLowerCase().includes(DB.smay));
+
+  // extra filters
+  if(DB.extra.today)fil=fil.filter(d=>d.createdAt===td());
+  if(DB.extra.week){var w7=new Date();w7.setDate(w7.getDate()-7);var w7s=w7.toISOString().slice(0,10);fil=fil.filter(d=>d.createdAt>=w7s);}
+  if(DB.extra.urgent)fil=fil.filter(d=>isUrgent(d));
+  if(DB.extra.mine)fil=fil.filter(d=>d.createdBy===currentUser);
+
+  // search
+  if(DB.smay)fil=fil.filter(d=>
+    smartMatch(d.code,DB.smay)||
+    (d.prods||[]).some(p=>smartMatch(p.name,DB.smay)||smartMatch(p.color,DB.smay))||
+    smartMatch(d.factory,DB.smay)||smartMatch(d.quicknote,DB.smay)
+  );
+
   if(!fil.length){document.getElementById('list-may').innerHTML='<div class="empty-state"><div class="empty-icon">📋</div>Chưa có đơn nào</div>';return;}
+
   document.getElementById('list-may').innerHTML=fil.slice().reverse().map(d=>{
     var a=getAlert(d);
-    var cc='order-card'+(a==='late'?' red-card':a==='near'?' warn-card':d.status==='up'?' done-card':'');
+    var cc='order-card'+(a==='late'?' red-card':a==='near'?' warn-card':d.status==='up'?' done-card':'')+( DB.selMay.has(d.id)?' selected-card':'');
     var ds=dSince(d.date),du=d.deadline?dUntil(d.deadline):null;
     var pct=Math.min(100,Math.round(ds/10*100));
     var fc=a==='late'?'var(--red)':a==='near'?'var(--warn)':'var(--green)';
-    var statusOpts=['wait','sent','up'].map(s=>'<option value="'+s+'"'+(d.status===s?' selected':'')+'>'+MST[s].l+'</option>').join('');
+    var stOpts=Object.entries(MST).map(([k,v])=>'<option value="'+k+'"'+(d.status===k?' selected':'')+'>'+v.l+'</option>').join('');
     var prodH=(d.prods||[]).map((p,i)=>{
       var szC=Object.entries(p.sizes||{}).map(([s,q])=>'<div class="sz-chip"><b>'+s+'</b><span>'+q+'</span></div>').join('');
       return '<div class="product-row"><div class="product-num">'+String(i+1).padStart(2,'0')+'</div><div class="product-info"><div class="product-name">'+esc(p.name)+(p.color?' <span style="font-weight:400;color:var(--text2)">· '+esc(p.color)+'</span>':'')+'</div>'+(p.note?'<div class="product-sub">📝 '+esc(p.note)+'</div>':'')+(szC?'<div class="product-sizes">'+szC+'</div>':'')+'</div></div>';
     }).join('');
     var msH=d.ms?'<div style="margin-bottom:6px"><span class="measure-chip">📏 '+[d.ms.h,d.ms.w,d.ms.m].filter(Boolean).join(' · ')+'</span></div>':'';
-    var logH=d.log&&d.log.length?'<div class="log-list">'+d.log.map(l=>'<div class="log-item"><div class="log-dot"></div><span>'+fD(l.date)+' — '+esc(l.action)+'</span></div>').join('')+'</div>':'';
-    return '<div class="'+cc+'"><div class="card-main"><div class="card-left">'+
-      '<div class="card-row1"><span class="order-code">'+esc(d.code)+'</span>'+(d.quicknote?'<span style="font-size:12px;color:var(--text2)">'+esc(d.quicknote)+'</span>':'')+
-      '<select class="status-select" onchange="chStMay(\''+d.id+'\',this.value)">'+statusOpts+'</select>'+
-      (a==='late'?'<span class="badge badge-late">Trễ hạn</span>':a==='near'?'<span class="badge badge-warn-b">Sắp trễ</span>':'')+'</div>'+
-      '<div class="deadline-bar"><div class="deadline-fill" style="width:'+pct+'%;background:'+fc+'"></div></div>'+
-      '<div class="card-meta"><span>Cho may: <b>'+fDF(d.date)+'</b></span>'+(d.deadline?'<span>Cần lên: <b>'+fDF(d.deadline)+'</b></span>':'')+(d.factory?'<span>Xưởng: <b>'+esc(d.factory)+'</b></span>':'')+
-      '<span>Đã may: <b>'+ds+' ngày</b></span>'+(du!==null?(du>=0?'<span style="color:'+(a?'var(--'+(a==='late'?'red':'warn')+')':'var(--text2)')+'">Còn <b>'+du+' ngày</b></span>':'<span style="color:var(--red)">Trễ <b>'+Math.abs(du)+' ngày</b></span>'):'')+
-      '</div>'+msH+'<div class="product-list">'+prodH+'</div>'+(d.error?'<div style="margin-top:4px"><span class="error-chip">⚠ '+esc(d.error)+'</span></div>':'')+logH+
-      '</div><div class="card-right"><div style="display:flex;flex-direction:column;gap:6px"><button class="btn btn-sm" onclick="openMayModal(\''+d.id+'\')">Sửa</button><button class="btn btn-sm btn-red" onclick="delMay(\''+d.id+'\')">Xoá</button></div></div></div></div>';
+    var logH=d.log&&d.log.length?'<div class="log-list">'+d.log.map(l=>'<div class="log-item"><div class="log-dot"></div><span>'+fD(l.date)+' — '+esc(l.action)+(l.by?'<b> ('+USERS[l.by].name+')</b>':'')+'</span></div>').join('')+'</div>':'';
+    var usr=d.createdBy&&USERS[d.createdBy]?USERS[d.createdBy]:null;
+    var creatorTag=usr?'<span class="creator-tag creator-'+d.createdBy+'" title="Tạo bởi '+usr.name+'">'+usr.name+'</span>':'';
+    return '<div class="'+cc+'"><div class="card-main">'+
+      '<div class="card-check"><input type="checkbox" '+(DB.selMay.has(d.id)?'checked':'')+' onchange="toggleSel(\'may\',\''+d.id+'\')"></div>'+
+      '<div class="card-left">'+
+        '<div class="card-row1"><span class="order-code">'+esc(d.code)+'</span>'+
+        (d.quicknote?'<span style="font-size:12px;color:var(--text2)">'+esc(d.quicknote)+'</span>':'')+
+        '<select class="status-select" onchange="chStMay(\''+d.id+'\',this.value)">'+stOpts+'</select>'+
+        (a==='late'?'<span class="badge badge-late">Trễ hạn</span>':a==='near'?'<span class="badge badge-warn-b">Sắp trễ</span>':'')+
+        (isUrgent(d)?'<span class="badge badge-urgent">🔥 Gấp</span>':'')+
+        creatorTag+'</div>'+
+        '<div class="deadline-bar"><div class="deadline-fill" style="width:'+pct+'%;background:'+fc+'"></div></div>'+
+        '<div class="card-meta"><span>Cho may: <b>'+fDF(d.date)+'</b></span>'+(d.deadline?'<span>Cần lên: <b>'+fDF(d.deadline)+'</b></span>':'')+(d.factory?'<span>Xưởng: <b>'+esc(d.factory)+'</b></span>':'')+
+        '<span>Đã may: <b>'+ds+' ngày</b></span>'+(du!==null?(du>=0?'<span style="color:'+(a?'var(--'+(a==='late'?'red':'warn')+')':'var(--text2)')+'">Còn <b>'+du+' ngày</b></span>':'<span style="color:var(--red)">Trễ <b>'+Math.abs(du)+' ngày</b></span>'):'')+
+        '</div>'+msH+'<div class="product-list">'+prodH+'</div>'+
+        (d.error?'<div style="margin-top:4px"><span class="error-chip">⚠ '+esc(d.error)+'</span></div>':'')+logH+
+      '</div>'+
+      '<div class="card-right"><button class="btn btn-sm" onclick="openMayModal(\''+d.id+'\')">Sửa</button><button class="btn btn-sm btn-red" onclick="delMay(\''+d.id+'\')">Xoá</button></div>'+
+    '</div></div>';
   }).join('');
 }
 
+// ============================================================
 // RENDER GC
+// ============================================================
 function renderGC(){
   var list=DB.gc;
   var tSP=list.reduce((s,x)=>s+prodsTotal(x.prods),0);
-  var tPass=list.reduce((s,x)=>s+gcPass(x),0);
-  var tFail=list.reduce((s,x)=>s+gcFail(x),0);
+  var tPass=list.reduce((s,x)=>s+gcPass(x),0),tFail=list.reduce((s,x)=>s+gcFail(x),0);
   var tMon=list.reduce((s,x)=>s+gcPass(x)*x.price,0);
   document.getElementById('stats-gc').innerHTML=sCard('Đơn GC',list.length)+sCard('Tổng SP',tSP)+sCard('QC đạt',tPass,'green')+sCard('QC lỗi',tFail,'red')+sCard('Tiền GC',Math.round(tMon/1000)+'K','amber');
+
   var fil=list.filter(d=>{
-    var r=gcPass(d),t=prodsTotal(d.prods);
-    if(DB.fgc==='partial')return r<t&&d.status!=='done';
-    if(DB.fgc!=='all')return d.status===DB.fgc;
+    var r=gcPass(d),t=prodsTotal(d.prods),st=DB.fgc.status;
+    if(st==='partial')return r<t&&d.status!=='done';
+    if(st!=='all')return d.status===st;
     return true;
   });
-  if(DB.sgc)fil=fil.filter(d=>(d.code+(d.shop||'')+(d.prods||[]).map(p=>p.name).join('')).toLowerCase().includes(DB.sgc));
+  if(DB.sgc)fil=fil.filter(d=>smartMatch(d.code,DB.sgc)||smartMatch(d.shop,DB.sgc)||(d.prods||[]).some(p=>smartMatch(p.name,DB.sgc)));
+
   if(!fil.length){document.getElementById('list-gc').innerHTML='<div class="empty-state"><div class="empty-icon">🧵</div>Chưa có đơn nào</div>';return;}
+
   document.getElementById('list-gc').innerHTML=fil.slice().reverse().map(d=>{
     var recv=gcPass(d),fail=gcFail(d),tot=prodsTotal(d.prods),rem=Math.max(0,tot-recv);
     var pct=tot>0?Math.round(recv/tot*100):0,full=recv>=tot&&tot>0;
-    var si=GST[d.status]||{l:d.status,c:'badge-wait'};
-    var stOpts=['making','approved','producing','done'].map(s=>'<option value="'+s+'"'+(d.status===s?' selected':'')+'>'+GST[s].l+'</option>').join('');
+    var stOpts=Object.entries(GST).map(([k,v])=>'<option value="'+k+'"'+(d.status===k?' selected':'')+'>'+v.l+'</option>').join('');
     var prodH=(d.prods||[]).map((p,i)=>{
       var szC=Object.entries(p.sizes||{}).map(([s,q])=>'<div class="sz-chip"><b>'+s+'</b><span>'+q+'</span></div>').join('');
       return '<div class="product-row"><div class="product-num">'+String(i+1).padStart(2,'0')+'</div><div class="product-info"><div class="product-name">'+esc(p.name)+'</div>'+(szC?'<div class="product-sizes">'+szC+'</div>':'')+'</div></div>';
     }).join('');
-    var batchH='';
-    if(d.batches&&d.batches.length){
-      batchH=d.batches.map((b,i)=>{
-        var pS=Object.entries(b.pass||{}).map(([s,q])=>'<span class="bsz pass">'+s+' +'+q+'</span>').join('');
-        var fS=Object.entries(b.fail||{}).map(([s,q])=>'<span class="bsz fail">'+s+' ✗'+q+'</span>').join('');
-        return '<div class="batch-item"><div class="batch-header"><div class="batch-date-label">Đợt '+(i+1)+' — '+fDF(b.date)+'</div>'+(b.deliver?'<span style="font-size:11px;color:var(--text2)">Giao shop: <b>'+fDF(b.deliver)+'</b></span>':'')+'</div>'+
-          '<div class="batch-sizes">'+pS+fS+'</div>'+
-          (b.note||b.error?'<div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">'+(b.note?'<span class="note-chip">'+esc(b.note)+'</span>':'')+(b.error?'<span class="error-chip">'+esc(b.error)+'</span>':'')+'</div>':'')+
-        '</div>';
-      }).join('');
-    }else{batchH='<div style="font-size:12px;color:var(--text3);padding:4px 0">Chưa có đợt hàng nào về</div>';}
-    return '<div class="order-card'+(full?' done-card':'')+'"><div class="card-main"><div class="card-left">'+
-      '<div class="card-row1"><span class="order-code">'+esc(d.code)+'</span>'+(d.shop?'<span style="font-size:12px;color:var(--text2)">'+esc(d.shop)+'</span>':'')+
-      '<select class="status-select" onchange="chStGC(\''+d.id+'\',this.value)">'+stOpts+'</select>'+
-      (full?'<span class="badge badge-up">Đủ hàng</span>':'<span class="badge badge-wait">Còn thiếu '+rem+'</span>')+'</div>'+
-      '<div class="progress-row"><span class="progress-label">'+pct+'%</span><div class="progress-wrap"><div class="progress-fill'+(pct<50?' warn':'')+'" style="width:'+pct+'%"></div></div><span class="progress-label">'+recv+'/'+tot+'</span></div>'+
-      '<div class="card-meta"><span>Đặt: <b>'+fDF(d.date)+'</b></span>'+(d.eta?'<span>Dự kiến: <b>'+fDF(d.eta)+'</b></span>':'')+(d.price?'<span>Đơn giá: <b>'+d.price.toLocaleString()+'đ</b></span>':'')+(recv*d.price>0?'<span style="color:var(--green)">Tiền GC: <b>'+(recv*d.price).toLocaleString()+'đ</b></span>':'')+'<span>Còn cần lên: <b style="color:'+(rem>0?'var(--amber)':'var(--green)')+'">'+rem+'</b></span></div>'+
-      '<div class="product-list">'+prodH+'</div>'+(d.note?'<div style="font-size:12px;color:var(--text2);margin-top:4px">📝 '+esc(d.note)+'</div>':'')+
-      '</div><div class="card-right"><div style="display:flex;flex-direction:column;gap:6px">'+
-      '<button class="btn btn-sm btn-green" onclick="openBatch(\''+d.id+'\')">+ Đợt hàng về</button>'+
-      '<button class="btn btn-sm" onclick="openGCModal(\''+d.id+'\')">Sửa</button>'+
-      '<button class="btn btn-sm btn-red" onclick="delGC(\''+d.id+'\')">Xoá</button></div></div></div>'+
-      '<div class="card-expand"><div class="sub-title">Lịch sử đợt hàng về</div><div class="batch-list">'+batchH+'</div></div></div>';
+    var batchH=d.batches&&d.batches.length?d.batches.map((b,i)=>{
+      var pS=Object.entries(b.pass||{}).map(([s,q])=>'<span class="bsz pass">'+s+' +'+q+'</span>').join('');
+      var fS=Object.entries(b.fail||{}).map(([s,q])=>'<span class="bsz fail">'+s+' ✗'+q+'</span>').join('');
+      return '<div class="batch-item"><div class="batch-header"><div class="batch-date-label">Đợt '+(i+1)+' — '+fDF(b.date)+'</div>'+(b.deliver?'<span style="font-size:11px;color:var(--text2)">Giao shop: <b>'+fDF(b.deliver)+'</b></span>':'')+'</div>'+
+        '<div class="batch-sizes">'+pS+fS+'</div>'+
+        (b.note||b.error?'<div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">'+(b.note?'<span class="note-chip">'+esc(b.note)+'</span>':'')+(b.error?'<span class="error-chip">'+esc(b.error)+'</span>':'')+'</div>':'')+
+      '</div>';
+    }).join(''):'<div style="font-size:12px;color:var(--text3);padding:4px 0">Chưa có đợt hàng nào về</div>';
+    var usr=d.createdBy&&USERS[d.createdBy]?USERS[d.createdBy]:null;
+    var creatorTag=usr?'<span class="creator-tag creator-'+d.createdBy+'">'+usr.name+'</span>':'';
+    return '<div class="order-card'+(full?' done-card':'')+(DB.selGC.has(d.id)?' selected-card':'')+'"><div class="card-main">'+
+      '<div class="card-check"><input type="checkbox" '+(DB.selGC.has(d.id)?'checked':'')+' onchange="toggleSel(\'gc\',\''+d.id+'\')"></div>'+
+      '<div class="card-left">'+
+        '<div class="card-row1"><span class="order-code">'+esc(d.code)+'</span>'+(d.shop?'<span style="font-size:12px;color:var(--text2)">'+esc(d.shop)+'</span>':'')+
+        '<select class="status-select" onchange="chStGC(\''+d.id+'\',this.value)">'+stOpts+'</select>'+
+        (full?'<span class="badge badge-up">Đủ hàng</span>':'<span style="font-size:11px;color:var(--text2)">Còn thiếu '+rem+'</span>')+
+        creatorTag+'</div>'+
+        '<div class="progress-row"><span class="progress-label">'+pct+'%</span><div class="progress-wrap"><div class="progress-fill'+(pct<50?' warn':'')+'" style="width:'+pct+'%"></div></div><span class="progress-label">'+recv+'/'+tot+'</span></div>'+
+        '<div class="card-meta"><span>Đặt: <b>'+fDF(d.date)+'</b></span>'+(d.eta?'<span>Dự kiến: <b>'+fDF(d.eta)+'</b></span>':'')+(d.price?'<span>Đơn giá: <b>'+d.price.toLocaleString()+'đ</b></span>':'')+(recv*d.price>0?'<span style="color:var(--green)">Tiền GC: <b>'+(recv*d.price).toLocaleString()+'đ</b></span>':'')+'<span>Còn cần: <b style="color:'+(rem>0?'var(--amber)':'var(--green)')+'">'+rem+'</b></span></div>'+
+        '<div class="product-list">'+prodH+'</div>'+(d.note?'<div style="font-size:12px;color:var(--text2);margin-top:4px">📝 '+esc(d.note)+'</div>':'')+
+      '</div>'+
+      '<div class="card-right"><button class="btn btn-sm btn-green" onclick="openBatch(\''+d.id+'\')">+ Đợt hàng</button><button class="btn btn-sm" onclick="openGCModal(\''+d.id+'\')">Sửa</button><button class="btn btn-sm btn-red" onclick="delGC(\''+d.id+'\')">Xoá</button></div>'+
+    '</div>'+
+    '<div class="card-expand"><div class="sub-title">Lịch sử đợt hàng về</div><div class="batch-list">'+batchH+'</div></div></div>';
   }).join('');
 }
 
 function sCard(l,v,a){return'<div class="stat-card"><div class="stat-label">'+l+'</div><div class="stat-val'+(a?' '+a:'')+'">'+v+'</div></div>';}
 
+// ============================================================
 // REPORT
+// ============================================================
 function populateMonths(){
   var sel=document.getElementById('rpt-month');
   var ms=new Set();var now=td().slice(0,7);ms.add(now);
-  DB.may.forEach(d=>{if(d.date)ms.add(d.date.slice(0,7));});
+  DB.may.forEach(d=>{if(d.createdAt)ms.add(d.createdAt.slice(0,7));});
   DB.gc.forEach(d=>{if(d.date)ms.add(d.date.slice(0,7));(d.batches||[]).forEach(b=>{if(b.date)ms.add(b.date.slice(0,7));});});
   var cur=sel.value||now;sel.innerHTML='';
   [...ms].sort().reverse().forEach(m=>{var op=document.createElement('option');op.value=m;var p=m.split('-');op.textContent='Tháng '+p[1]+'/'+p[0];if(m===cur)op.selected=true;sel.appendChild(op);});
@@ -808,17 +1163,20 @@ function renderReport(){
 }
 
 function exportCSV(){
-  var rows=[['Loại','Mã đơn','Sản phẩm','Màu','S','M','L','XL','Tổng SL','Ngày đặt','Deadline','Xưởng/Shop','Trạng thái','Đơn giá','Chiều cao','Cân nặng','Số đo','Ghi chú']];
-  DB.may.forEach(d=>{(d.prods||[]).forEach(p=>{var sz=p.sizes||{};rows.push(['Đơn may',d.code,p.name,p.color,sz.S||0,sz.M||0,sz.L||0,sz.XL||0,szTotal(sz),d.date,d.deadline,d.factory,(MST[d.status]||{}).l,0,d.ms?d.ms.h:'',d.ms?d.ms.w:'',d.ms?d.ms.m:'',d.quicknote]);});});
-  DB.gc.forEach(d=>{(d.prods||[]).forEach(p=>{var sz=p.sizes||{};rows.push(['Gia công',d.code,p.name,'',sz.S||0,sz.M||0,sz.L||0,sz.XL||0,szTotal(sz),d.date,d.eta,d.shop,(GST[d.status]||{}).l,d.price,'','','','Đạt:'+gcPass(d)+' Lỗi:'+gcFail(d)]);});});
+  var rows=[['Loại','Mã đơn','Sản phẩm','Màu','S','M','L','XL','Tổng','Ngày tạo','Deadline','Xưởng/Shop','Trạng thái','Đơn giá','Người tạo','Số đo','Ghi chú']];
+  DB.may.forEach(d=>{(d.prods||[]).forEach(p=>{var sz=p.sizes||{};rows.push(['Đơn may',d.code,p.name,p.color,sz.S||0,sz.M||0,sz.L||0,sz.XL||0,szTotal(sz),d.createdAt,d.deadline,d.factory,(MST[d.status]||{}).l,0,d.createdBy?(USERS[d.createdBy]||{}).name:'',d.ms?[d.ms.h,d.ms.w,d.ms.m].join(' '):'',(d.quicknote||'')+(d.error?' | Lỗi: '+d.error:'')]);});});
+  DB.gc.forEach(d=>{(d.prods||[]).forEach(p=>{var sz=p.sizes||{};rows.push(['Gia công',d.code,p.name,'',sz.S||0,sz.M||0,sz.L||0,sz.XL||0,szTotal(sz),d.createdAt,d.eta,d.shop,(GST[d.status]||{}).l,d.price,d.createdBy?(USERS[d.createdBy]||{}).name:'','','Đạt:'+gcPass(d)+' Lỗi:'+gcFail(d)]);});});
   var csv=rows.map(r=>r.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
   var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='emwear-'+td()+'.csv';a.click();
 }
 
+// ============================================================
 // INIT
-var _d=new Date();
-document.getElementById('hdate').textContent=['CN','T2','T3','T4','T5','T6','T7'][_d.getDay()]+', '+_d.getDate()+'/'+(_d.getMonth()+1)+'/'+_d.getFullYear();
-renderMay();renderGC();updateBadges();
+// ============================================================
+if(!checkSession()){
+  // show login
+  document.getElementById('login-screen').style.display='flex';
+}
 </script>
 </body>
 </html>
