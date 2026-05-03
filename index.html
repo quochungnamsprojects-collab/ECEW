@@ -10,18 +10,23 @@
    CONFIG: paste Apps Script URL vào đây sau khi deploy
    ============================================================ */
 :root{
-  --bg:#F2F0EC;--sf:#fff;--s2:#EAE6E0;--s3:#DDD8D0;
+  --bg:#F8F9FA;--sf:#fff;--s2:#EDF2F7;--s3:#E2E8F0;
   --bd:rgba(0,0,0,0.07);--bd2:rgba(0,0,0,0.13);
   --tx:#1A1714;--tx2:#6B6560;--tx3:#A09890;
   --acc:#2D2926;--acc2:#3d3530;
-  --grn:#1A7A4A;--gbg:#E8F5EE;--gdk:#0F5232;
-  --amb:#A05C00;--abg:#FEF3E2;
-  --red:#B91C1C;--rbg:#FEE2E2;
-  --blu:#1D4ED8;--bbg:#EFF6FF;
-  --pur:#6D28D9;--pbg:#F5F3FF;
-  --warn:#D97706;--wbg:#FFFBEB;
-  --tel:#0D7377;--tbg:#E0F7F7;
-  --ora:#EA580C;
+  /* Pastel palette */
+  --grn:#2D8A4E;--gbg:#BFFCC6;--gdk:#1A5C33;
+  --amb:#A05C00;--abg:#FFFFD1;
+  --red:#C0392B;--rbg:#FFABAB;
+  --blu:#2980B9;--bbg:#C4FAF8;
+  --pur:#6D28D9;--pbg:#E8DAFF;
+  --warn:#C47800;--wbg:#FFFFD1;
+  --tel:#0D7377;--tbg:#AFF8DB;
+  --ora:#C0392B;
+  --mint:#AFF8DB;--mintbg:#AFF8DB;
+  --sky:#85E3FF;--skybg:#C4FAF8;
+  --rose:#FFC9DE;--rosebg:#FFC9DE;
+  --lemon:#FFFFD1;--lemonbg:#FFFFD1;
   --r1:6px;--r2:10px;--r3:14px;
   --sw:230px;
   --font:'Be Vietnam Pro',sans-serif;
@@ -158,10 +163,10 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .mc{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--r3);overflow:hidden;transition:box-shadow .15s}
 .mc:hover{box-shadow:0 3px 14px rgba(0,0,0,.06)}
 .mc.sel{border-color:var(--blu);box-shadow:0 0 0 2px rgba(29,78,216,.1)}
-.mc.st-sent{border-left:3px solid #378ADD}
-.mc.st-waiting_material{border-left:3px solid #EF9F27}
-.mc.st-up{border:2px solid #1D9E75;background:#F0FAF4}
-.mc.st-late{border-left:3px solid #E24B4A}
+.mc.st-sent{border-left:3px solid #85E3FF}
+.mc.st-waiting_material{border-left:3px solid #FFFFD1}
+.mc.st-up{border:2px solid #2D8A4E;background:#BFFCC6}
+.mc.st-late{border-left:3px solid #FFABAB}
 .mc.st-near{border-left:3px solid #EF9F27}
 
 /* may header */
@@ -171,16 +176,16 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .mh-main{flex:1;display:flex;align-items:center;gap:9px;padding:0 8px 0 0;overflow:hidden;min-width:0}
 .mcode{font-size:14px;font-weight:700;flex-shrink:0;letter-spacing:-.01em}
 .pill{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.p-sent{background:#EFF6FF;color:#185FA5}
-.p-wmat{background:var(--abg);color:#633806}
-.p-up{background:var(--gbg);color:#27500A}
-.p-late{background:var(--rbg);color:#791F1F}
-.p-near{background:var(--wbg);color:#633806}
-.p-urg{background:#FEF2F2;color:#991B1B;border:0.5px solid #FCA5A5}
-.p-hung{background:#EFF6FF;color:#0C447C}
-.p-trang{background:#FDF4FF;color:#6D28D9}
-.p-bup{background:#EFF6FF;color:#185FA5;font-weight:600}
-.p-nan{background:var(--pbg);color:#3C3489;font-weight:600}
+.p-sent{background:#C4FAF8;color:#0D5C8A}
+.p-wmat{background:#FFFFD1;color:#7A5800}
+.p-up{background:#BFFCC6;color:#1A5C33}
+.p-late{background:#FFABAB;color:#8B1A1A}
+.p-near{background:#FFFFD1;color:#7A5800}
+.p-urg{background:#FFC9DE;color:#8B1A3A;border:0.5px solid #FFB0CC}
+.p-hung{background:#C4FAF8;color:#0C447C}
+.p-trang{background:#E8DAFF;color:#5B21B6}
+.p-bup{background:#85E3FF;color:#0D4C73;font-weight:600}
+.p-nan{background:#AFF8DB;color:#0D5C3A;font-weight:600}
 .p-pt{background:var(--s2);color:var(--tx2);font-weight:600}
 .mst-sel{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd2);cursor:pointer;font-family:var(--font);background:var(--sf);color:var(--tx);flex-shrink:0}
 .mst-sel:focus{outline:none;border-color:var(--acc)}
@@ -232,10 +237,10 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .gc{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--r3);overflow:hidden;transition:box-shadow .15s}
 .gc:hover{box-shadow:0 3px 14px rgba(0,0,0,.06)}
 .gc.sel{border-color:var(--blu);box-shadow:0 0 0 2px rgba(29,78,216,.1)}
-.gc.done{border:2px solid var(--grn);background:#F0FAF4}
-.gc.prod{border-left:3px solid var(--blu)}
-.gc.mak{border-left:3px solid var(--pur)}
-.gc.app{border-left:3px solid var(--tel)}
+.gc.done{border:2px solid #2D8A4E;background:#BFFCC6}
+.gc.prod{border-left:3px solid #85E3FF}
+.gc.mak{border-left:3px solid #FFC9DE}
+.gc.app{border-left:3px solid #AFF8DB}
 
 .gch{display:flex;align-items:center;min-height:44px;border-bottom:0.5px solid var(--bd)}
 .gch-chk{padding:0 10px 0 14px;flex-shrink:0}
@@ -301,8 +306,8 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .btn{padding:7px 14px;border-radius:var(--r1);border:1px solid var(--bd2);background:var(--sf);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .1s;white-space:nowrap}
 .btn:hover{background:var(--s2)}.btn:active{transform:scale(.98)}
 .btn-a{background:var(--acc);color:#fff;border-color:var(--acc)}.btn-a:hover{background:var(--acc2)}
-.btn-g{background:var(--gbg);color:var(--grn);border-color:rgba(26,122,74,.2)}
-.btn-r{background:var(--rbg);color:var(--red);border-color:rgba(185,28,28,.2)}
+.btn-g{background:#BFFCC6;color:#1A5C33;border-color:rgba(45,138,78,.2)}
+.btn-r{background:#FFABAB;color:#8B1A1A;border-color:rgba(192,57,43,.2)}
 .btn-sm{padding:4px 10px;font-size:11px}
 
 /* EMPTY */
@@ -489,8 +494,8 @@ DH047318 - 11/5 lên hàng
           <!-- GC AUTO BOX -->
           <div class="abox" id="gc-autobox">
             <div class="abox-t">✦ Nhập nhanh đơn gia công</div>
-            <textarea class="ata" id="gc-in" style="min-height:70px" placeholder="GC001 - BUPBES - 25000đ&#10;* Áo sơ mi trắng - S:20 M:30 L:15 XL:5"></textarea>
-            <div class="ahint">Dòng 1: <code>mã - đối tác - đơn giá</code> · SP: <code>* tên - S:n M:n L:n XL:n</code></div>
+            <textarea class="ata" id="gc-in" style="min-height:70px" placeholder="BUPBES - Váy Ngắn Tơ Bèo - Trắng - 5S 10M 5L 3XL&#10;NAN - Jumpsuit Betty - Đen - 20M 10L&#10;BUPBES - Set Lụa Bèo - Hồng - 15S 20M 10L"></textarea>
+            <div class="ahint">Mỗi dòng = 1 SP: <code>đối tác - tên SP - màu - 5S 10M 5L 3XL</code> · Bỏ màu nếu không có</div>
             <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
               <button class="btn btn-a" onclick="parseGC()">Tạo đơn</button>
               <button class="btn" onclick="document.getElementById('gc-in').value=''">Xoá</button>
@@ -510,6 +515,9 @@ DH047318 - 11/5 lên hàng
                 <option value="done">Hoàn thành</option>
                 <option value="partial">Chưa đủ hàng</option>
               </select>
+              <div class="fc-sep"></div>
+              <span class="fb-lbl">Đối tác:</span>
+              <div id="gc-pt-filters" style="display:flex;gap:5px;flex-wrap:wrap"></div>
             </div>
           </div>
           <div class="bb" id="bb-gc">
@@ -757,7 +765,7 @@ function startApp(user){
   var d=new Date();document.getElementById('h-date').textContent=['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
   if(user.role==='admin'){document.getElementById('sb-admin-ttl').style.display='';document.getElementById('nav-admin').style.display='';}
   applyRoleRestrictions();
-  renderPt();renderMay();renderGC();updateBadges();
+  renderPt();renderMay();renderGC();renderPtChips();updateBadges();
   // Pull Sheet 1 lần khi vào app — không auto-pull liên tục
   pullFromSheet();
 }
@@ -912,7 +920,7 @@ function initLoad(){
 var DB={
   may:[],gc:[],
   partners:['BUPBES','NAN'],
-  fm:{st:'all',alert:''},fg:{st:'all'},
+  fm:{st:'all',alert:''},fg:{st:'all',pt:'all'},
   ex:{urg:false,today:false,week:false,mine:false},
   sm:'',sg:'',
   smay:new Set(),sgc:new Set(),
@@ -922,7 +930,6 @@ var DB={
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 function td(){return new Date().toISOString().slice(0,10);}
 function addDays(d,n){var dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
-function fD(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1];}
 function cleanDate(d){
   // Handle ISO timestamp from Sheet e.g. "01T17:00:00.000Z/05/2026" or full ISO
   if(!d)return'';
@@ -1003,6 +1010,7 @@ function swTab(t){
   });
   if(t==='bc'){popMonths();renderReport();}
   if(t==='admin')renderAdmin();
+  if(t==='gc')renderPtChips();
   updateBadges();
 }
 function updateBadges(){
@@ -1074,12 +1082,11 @@ function renderPt(){
 function addPartner(){
   var v=document.getElementById('new-pt').value.trim();if(!v)return;
   if(DB.partners.includes(v)){toast('Đã tồn tại','warn');return;}
-  DB.partners.push(v);save();document.getElementById('new-pt').value='';renderPt();
-  // update partner selects
+  DB.partners.push(v);save();document.getElementById('new-pt').value='';renderPt();renderPtChips();
   document.querySelectorAll('#mg-pt').forEach(s=>popPartnerSel(s));
   toast('Đã thêm đối tác '+v,'ok');
 }
-function removePt(i){if(i<2)return;if(confirm('Xoá đối tác này?')){DB.partners.splice(i,1);save();renderPt();}}
+function removePt(i){if(i<2)return;if(confirm('Xoá đối tác này?')){DB.partners.splice(i,1);save();renderPt();renderPtChips();}}
 function popPartnerSel(sel){var cur=sel.value;sel.innerHTML=DB.partners.map(p=>'<option value="'+esc(p)+'"'+(p===cur?' selected':'')+'>'+esc(p)+'</option>').join('');}
 
 // ============================================================
@@ -1280,29 +1287,57 @@ function clearAuto(){document.getElementById('auto-in').value='';cancelPrev();}
 // PARSE GC
 function parseGC(){
   if(CU&&CU.role==='staff')return;
-  var raw=document.getElementById('gc-in').value.trim();if(!raw){alert('Nhập nội dung');return;}
+  var raw=document.getElementById('gc-in').value.trim();
+  if(!raw){alert('Nhập nội dung');return;}
   var lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
-  var hdr=lines[0],hp=hdr.split(/\s*[-–—]\s*/);
-  var code=hp[0].trim(),partner=hp[1]||DB.partners[0]||'',price=0;
-  // match partner name from list
-  var matchPt=DB.partners.find(p=>hdr.toLowerCase().includes(p.toLowerCase()));if(matchPt)partner=matchPt;
-  var pm=hdr.match(/(\d[\d.,]+)\s*[đd]/i);if(pm)price=parseInt(pm[1].replace(/[.,]/g,''))||0;
-  var prods=[];
-  lines.slice(1).forEach(line=>{
-    if(!/^[\*\-•]\s*\S/.test(line))return;
-    var clean=line.replace(/^[\*\-•]\s*/,'').trim();
-    var sizes={};var szM=clean.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/gi);
-    if(szM)szM.forEach(sm=>{var m2=sm.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/i);if(m2)sizes[m2[1].toUpperCase()]=parseInt(m2[2]);});
-    var name=clean.split(/\s*-\s*/)[0].trim();if(name)prods.push({name,sizes});
+  // Group lines by partner → each partner gets 1 order
+  var orders={};// partner → {prods:[]}
+  var created=[];
+  lines.forEach(line=>{
+    // Format: ĐốiTác - TênSP - Màu - 5S 10M 5L 3XL
+    // or: ĐốiTác - TênSP - 5S 10M (no color)
+    var parts=line.split(/\s*[-–—]\s*/);
+    if(parts.length<2)return;
+    var partner=parts[0].trim();
+    if(!partner)return;
+    // Match partner from list (case-insensitive)
+    var matchPt=DB.partners.find(p=>p.toLowerCase()===partner.toLowerCase()||partner.toLowerCase().includes(p.toLowerCase()));
+    if(matchPt)partner=matchPt;
+    // Parse sizes: 5S 10M 5L 3XL or S:5 M:10
+    var sizeStr=parts[parts.length-1];
+    var sizes={};
+    // Format: 5S 10M 5L 3XL
+    var szM1=sizeStr.match(/(\d+)\s*(S|M|L|XL)\b/gi);
+    if(szM1)szM1.forEach(sm=>{var m=sm.match(/(\d+)\s*(S|M|L|XL)/i);if(m)sizes[m[2].toUpperCase()]=parseInt(m[1]);});
+    // Format: S:5 M:10
+    if(!Object.keys(sizes).length){
+      var szM2=sizeStr.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/gi);
+      if(szM2)szM2.forEach(sm=>{var m=sm.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/i);if(m)sizes[m[1].toUpperCase()]=parseInt(m[2]);});
+    }
+    // Name = part[1], color = part[2] if not sizes, else empty
+    var name=parts[1]?parts[1].trim():'';
+    var color='';
+    if(parts.length>=3){
+      var potColor=parts[parts.length-2].trim();
+      // If last part has sizes, second-to-last might be color
+      if(Object.keys(sizes).length>0&&parts.length>=4){color=parts[parts.length-2].trim();}
+      else if(!Object.keys(sizes).length){color=potColor;}
+    }
+    if(!name)return;
+    if(!orders[partner])orders[partner]=[];
+    orders[partner].push({name,color,sizes});
   });
-  if(!code){alert('Không tìm thấy mã đơn');return;}
-  if(!prods.length)prods=[{name:'(chưa nhập SP)',sizes:{}}];
-  var isDup=DB.gc.some(x=>x.code.toLowerCase()===code.toLowerCase());
-  DB.gc.push({id:uid(),code,partner,date:td(),eta:'',price,status:'making',note:'',prods,batches:[],plans:[],createdBy:CU?CU.username:'',createdAt:td()});
+  if(!Object.keys(orders).length){alert('Không nhận diện được dòng nào.\nFormat: ĐốiTác - TênSP - Màu - 5S 10M 5L\nVí dụ: BUPBES - Váy Ngắn - Trắng - 10S 20M 10L');return;}
+  Object.entries(orders).forEach(([partner,prods])=>{
+    var code='GC'+Date.now().toString().slice(-5)+Math.random().toString(36).slice(2,4).toUpperCase();
+    DB.gc.push({id:uid(),code,partner,date:td(),eta:'',price:0,status:'making',note:'',prods,batches:[],plans:[],createdBy:CU?CU.username:'',createdAt:td()});
+    created.push(partner+' ('+prods.length+' SP)');
+  });
   save();document.getElementById('gc-in').value='';
-  var ok=document.getElementById('gc-ok');ok.textContent='Đã tạo '+code+'!';ok.style.display='inline';setTimeout(()=>ok.style.display='none',3000);
-  if(isDup)setTimeout(()=>toast('⚠ Mã <b>'+code+'</b> có thể đã tồn tại','warn',7000),400);
-  renderGC();updateBadges();
+  var ok=document.getElementById('gc-ok');
+  ok.textContent='Đã tạo '+created.length+' đơn: '+created.join(', ');
+  ok.style.display='inline';setTimeout(()=>ok.style.display='none',5000);
+  renderGC();renderPtChips();updateBadges();
 }
 
 // ============================================================
@@ -1402,13 +1437,28 @@ function togLog(id){var el=document.getElementById('mlog-'+id);if(el)el.classLis
 // ============================================================
 // RENDER GC
 // ============================================================
+// Render partner filter chips in GC filter bar
+function renderPtChips(){
+  var el=document.getElementById('gc-pt-filters');if(!el)return;
+  var pts=['all',...DB.partners];
+  el.innerHTML=pts.map(p=>{
+    var isAll=p==='all';
+    var on=DB.fg.pt===p;
+    var label=isAll?'Tất cả':p;
+    return '<button class="fc'+(on?' on':'')+'" onclick="setFgPt(\''+esc(p)+'\')" style="'+(on&&!isAll?'background:#85E3FF;color:#0D4C73;border-color:#85E3FF':'')+'">'+esc(label)+'</button>';
+  }).join('');
+}
+function setFgPt(pt){DB.fg.pt=pt;renderPtChips();renderGC();}
+
 function renderGC(){
-  var list=DB.gc;
+  // Normalize GC items to ensure required fields exist
+  var list=DB.gc.filter(d=>d&&d.id);
   var tSP=list.reduce((s,x)=>s+pTot(x.prods),0);
   var tP=list.reduce((s,x)=>s+gcPass(x),0),tF=list.reduce((s,x)=>s+gcFail(x),0);
   var tM=list.reduce((s,x)=>s+gcPass(x)*x.price,0);
   document.getElementById('sts-gc').innerHTML=sc('Đơn GC',list.length)+sc('Tổng SP',tSP)+sc('QC đạt',tP,'g')+sc('QC lỗi',tF,'r')+sc('Tiền GC',Math.round(tM/1000)+'K','a');
   var fil=list.filter(d=>{var r=gcPass(d),t=pTot(d.prods),st=DB.fg.st;if(st==='partial')return r<t&&d.status!=='done';if(st!=='all')return d.status===st;return true;});
+  if(DB.fg.pt&&DB.fg.pt!=='all')fil=fil.filter(d=>d.partner===DB.fg.pt);
   if(DB.sg)fil=fil.filter(d=>smartMatch(d.code,DB.sg)||smartMatch(d.partner,DB.sg)||(d.prods||[]).some(p=>smartMatch(p.name,DB.sg)));
   if(!fil.length){document.getElementById('list-gc').innerHTML='<div class="empty"><div class="empty-ico">🧵</div>Chưa có đơn nào</div>';return;}
   var isStaff=CU&&CU.role==='staff';
