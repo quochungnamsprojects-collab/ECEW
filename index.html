@@ -202,21 +202,21 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 
 /* SP TABLE — 5 cols fixed */
 .spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd)}
-.spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 0;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left}
-.spt thead th:first-child{padding-left:14px;width:36px}
+.spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left}
+.spt thead th:first-child{padding-left:14px;width:32px}
 .spt thead th.th-name{padding-left:8px}
-.spt thead th.th-color{width:130px;padding-left:8px}
-.spt thead th.th-sz{width:120px;padding-left:8px}
-.spt thead th.th-note{width:200px;padding-left:8px;padding-right:12px}
+.spt thead th.th-color{width:110px;padding-left:8px}
+.spt thead th.th-sz{width:100px;padding-left:8px}
+.spt thead th.th-note{width:160px;padding-left:8px;padding-right:12px}
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
-.spt tbody td{padding:7px 0;font-size:13px;vertical-align:middle}
-.spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);width:36px}
+.spt tbody td{padding:6px 0;font-size:13px;vertical-align:middle}
+.spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);width:32px}
 .td-name{padding-left:8px;font-weight:500;color:var(--tx)}
-.td-color{padding-left:8px;color:var(--tx2);width:130px}
-.td-sz{padding-left:8px;width:120px}
-.td-note{padding-left:8px;padding-right:12px;color:var(--tx3);font-size:11px;font-style:italic;width:200px}
-.szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 7px;font-size:11px;font-weight:500;margin-right:3px}
+.td-color{padding-left:8px;color:var(--tx2);width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-sz{padding-left:8px;width:100px}
+.td-note{padding-left:8px;padding-right:12px;color:var(--tx3);font-size:11px;font-style:italic;width:160px}
+.szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 6px;font-size:11px;font-weight:500;margin-right:3px}
 
 /* footer */
 .mfoot{display:flex;align-items:center;padding:6px 14px 6px 14px;border-top:0.5px solid var(--bd);background:var(--s2)}
@@ -912,9 +912,22 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function td(){return new Date().toISOString().slice(0,10);}
 function addDays(d,n){var dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
 function fD(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1];}
-function fDF(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
-function dSince(d){if(!d)return 0;return Math.floor((new Date(td())-new Date(d))/86400000);}
-function dUntil(d){if(!d)return null;return Math.floor((new Date(d)-new Date(td()))/86400000);}
+function cleanDate(d){
+  // Handle ISO timestamp from Sheet e.g. "01T17:00:00.000Z/05/2026" or full ISO
+  if(!d)return'';
+  if(typeof d==='string'){
+    // Already yyyy-mm-dd
+    if(/^\d{4}-\d{2}-\d{2}$/.test(d))return d;
+    // Try parse as date
+    var dt=new Date(d);
+    if(!isNaN(dt))return dt.toISOString().slice(0,10);
+  }
+  return String(d).slice(0,10);
+}
+function fD(d){d=cleanDate(d);if(!d||d==='—')return'—';var p=d.split('-');return p[2]+'/'+p[1];}
+function fDF(d){d=cleanDate(d);if(!d||d==='—')return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function dSince(d){d=cleanDate(d);if(!d)return 0;return Math.floor((new Date(td())-new Date(d))/86400000);}
+function dUntil(d){d=cleanDate(d);if(!d)return null;return Math.floor((new Date(d)-new Date(td()))/86400000);}
 function szT(sz){return(sz.S||0)+(sz.M||0)+(sz.L||0)+(sz.XL||0);}
 function pTot(prods){return(prods||[]).reduce((s,p)=>s+szT(p.sizes||{}),0);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
@@ -1166,42 +1179,42 @@ function parseOrders(){
     var deadline=parseDeadline(qn)||parseDeadline(block)||addDays(td(),10);
     var prods=[],ms=null;
     lines.slice(1).forEach(line=>{
-      // số đo line: có kg
-      if(/\d+\s*kg/i.test(line)){
-        var hm=line.match(/(1[.,]?\d{2})\s*m|(\d{3})\s*cm/i);
-        var wm=line.match(/(\d{2,3})\s*kg/i);
-        var szm=line.match(/(\d{2,3})\s*[-–]\s*(\d{2,3})\s*[-–]\s*(\d{2,3})/);
-        ms={h:hm?(hm[1]||hm[2])+'cm':'',w:wm?wm[1]+'kg':'',m:szm?szm[0]:''};return;
+      var stripped=line.replace(/^[\*\-•]\s*/,'').trim();
+      // số đo line: có kg — nhận cả dạng "1m62 76kg, 100-87-115"
+      if(/\d+\s*kg/i.test(stripped)){
+        var hm=stripped.match(/1[.,]?\d{2}\s*m(?:\s|$)|^\d{3}\s*cm/i);
+        var hm2=stripped.match(/(1[.,]?\d{2})m/i);
+        var wm=stripped.match(/(\d{2,3})\s*kg/i);
+        var szm=stripped.match(/(\d{2,3})\s*[-–,]\s*(\d{2,3})\s*[-–,]\s*(\d{2,3})/);
+        ms={
+          h:hm2?hm2[1].replace(',','.')+'m':'',
+          w:wm?wm[1]+'kg':'',
+          m:szm?szm[1]+'-'+szm[2]+'-'+szm[3]:''
+        };
+        return;
       }
-      // số đo 3 vòng sạch
-      if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}$/.test(line)){if(!ms)ms={h:'',w:'',m:''};ms.m=line;return;}
-      // SP line
-      if(/^[\*\-•]\s*\S/.test(line)){
-        var clean=line.replace(/^[\*\-•]\s*/,'').trim();
+      // số đo 3 vòng sạch (không có kg)
+      if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}$/.test(stripped)){
+        if(!ms)ms={h:'',w:'',m:''};ms.m=stripped;return;
+      }
+      // SP line — phải bắt đầu bằng * hoặc - nhưng không phải dòng số đo
+      if(/^[\*\-•]\s*\S/.test(line)&&!/\d+\s*kg/i.test(stripped)){
+        var clean=stripped;
         var sizes={};
-        // explicit S:n M:n
         var szM=clean.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/gi);
         if(szM)szM.forEach(sm=>{var m2=sm.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/i);if(m2)sizes[m2[1].toUpperCase()]=parseInt(m2[2]);});
-        // extract () notes
         var noteParts=(clean.match(/\(([^)]+)\)/g)||[]).map(x=>x.replace(/^\(|\)$/g,'').trim());
         var work=clean.replace(/\([^)]+\)/g,'').replace(/([SMLX]{1,2})\s*[:=]\s*\d+/gi,'').trim();
         var parts=work.split(/\s*-\s*/).map(p=>p.trim()).filter(Boolean);
         var name='',color='',sizeMeas='',noteExtra=[];
         parts.forEach((p,i)=>{
-          // height patterns: 1m62, 162cm, 1.62m
           if(/^1[.,]?\d{2}\s*m$/i.test(p)||/^\d{3}\s*cm$/i.test(p)){sizeMeas+=(sizeMeas?' ':'')+p;return;}
-          // weight: 57kg
           if(/^\d{2,3}\s*kg$/i.test(p)){sizeMeas+=(sizeMeas?' ':'')+p;return;}
-          // 3-meas
           if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}$/.test(p)){sizeMeas+=(sizeMeas?' ':'')+p;return;}
-          // single size
           if(/^(S|M|L|XL)$/i.test(p)&&!szM){sizes[p.toUpperCase()]=1;return;}
-          // size×count
           if(/^(S|M|L|XL)\s*[×x]?\s*\d+$/i.test(p)){var sm2=p.match(/^(S|M|L|XL)\s*[×x]?\s*(\d+)$/i);if(sm2)sizes[sm2[1].toUpperCase()]=parseInt(sm2[2]);return;}
           if(i===0){name=p;return;}
-          // check color whitelist
           if(!color&&isColor(p)){color=p;return;}
-          // unknown → note
           if(p)noteExtra.push(p);
         });
         var note=[...noteParts,...noteExtra].join(' · ').trim();
