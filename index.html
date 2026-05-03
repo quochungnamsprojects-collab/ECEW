@@ -779,11 +779,12 @@ function doLogout(){
 }
 
 // ============================================================
-// GOOGLE SHEETS SYNC
+// GOOGLE SHEETS SYNC — dùng script tag để bypass CORS redirect
 // ============================================================
 var syncTimer=null;
 var syncPending=null;
 var lastSyncTs=0;
+var _cbCounter=0;
 
 function setSyncStatus(status){
   var dot=document.getElementById('sync-dot');
@@ -794,47 +795,61 @@ function setSyncStatus(status){
   else{dot.className='sync-dot error';txt.textContent='Lỗi kết nối';}
 }
 
+// GET qua script tag (bypass CORS)
+function fetchFromSheet(callback){
+  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE'){callback(null);return;}
+  var cbName='_sheetCb'+(++_cbCounter);
+  var url=SCRIPT_URL+'?action=get&callback='+cbName+'&t='+Date.now();
+  var script=document.createElement('script');
+  var timer=setTimeout(()=>{
+    cleanup();callback(null);
+  },15000);
+  function cleanup(){
+    clearTimeout(timer);
+    if(script.parentNode)script.parentNode.removeChild(script);
+    delete window[cbName];
+  }
+  window[cbName]=function(data){cleanup();callback(data);};
+  script.src=url;
+  script.onerror=function(){cleanup();callback(null);};
+  document.head.appendChild(script);
+}
+
+// POST qua fetch no-cors (fire and forget, dùng localStorage làm cache)
 function syncToSheet(){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE')return;
   setSyncStatus('syncing');
-  // partners stored as plain strings
   var payload={action:'save',may:DB.may,gc:DB.gc,partners:DB.partners.map(p=>typeof p==='object'?p.name:p)};
-  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload),redirect:'follow'})
-    .then(r=>r.json()).then(d=>{
-      if(d.ok){setSyncStatus('ok');lastSyncTs=Date.now();}
-      else setSyncStatus('error');
-    }).catch(()=>setSyncStatus('error'));
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)})
+    .then(()=>{setSyncStatus('ok');lastSyncTs=Date.now();})
+    .catch(()=>setSyncStatus('error'));
 }
 
 function syncFromSheet(){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE')return;
-  // don't pull if a form modal is open
   if(document.querySelector('.ov.open'))return;
-  fetch(SCRIPT_URL+'?action=get&t='+Date.now(),{mode:'cors',credentials:'omit',redirect:'follow'})
-    .then(r=>r.json()).then(d=>{
-      if(!d.ok)return;
-      var changed=false;
-      if(d.may&&JSON.stringify(d.may)!==JSON.stringify(DB.may)){DB.may=d.may;changed=true;}
-      if(d.gc&&JSON.stringify(d.gc)!==JSON.stringify(DB.gc)){DB.gc=d.gc;changed=true;}
-      if(d.partners&&d.partners.length){
-        var newPt=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
-        if(JSON.stringify(newPt)!==JSON.stringify(DB.partners)){DB.partners=newPt;changed=true;}
-      }
-      if(d.users&&d.users.length){USERS_CACHE=d.users;save();}
-      if(changed){saveLocal();if(!document.querySelector('.ov.open')){renderMay();renderGC();renderPt();updateBadges();}}
-      setSyncStatus('ok');
-    }).catch(()=>{});
+  fetchFromSheet(function(d){
+    if(!d||!d.ok)return;
+    var changed=false;
+    if(d.may&&JSON.stringify(d.may)!==JSON.stringify(DB.may)){DB.may=d.may;changed=true;}
+    if(d.gc&&JSON.stringify(d.gc)!==JSON.stringify(DB.gc)){DB.gc=d.gc;changed=true;}
+    if(d.partners&&d.partners.length){
+      var np=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
+      if(JSON.stringify(np)!==JSON.stringify(DB.partners)){DB.partners=np;changed=true;}
+    }
+    if(d.users&&d.users.length){USERS_CACHE=d.users;saveLocal();}
+    if(changed){saveLocal();if(!document.querySelector('.ov.open')){renderMay();renderGC();renderPt();updateBadges();}}
+    setSyncStatus('ok');
+  });
 }
 
 function startAutoSync(){
   if(syncTimer)clearInterval(syncTimer);
-  syncTimer=setInterval(syncFromSheet,30000); // pull every 30s
+  syncTimer=setInterval(syncFromSheet,30000);
 }
 
-// Save = local + sheet
 function save(){
   saveLocal();
-  // debounce sheet sync 800ms
   if(syncPending)clearTimeout(syncPending);
   syncPending=setTimeout(syncToSheet,800);
 }
@@ -862,28 +877,22 @@ function initLoad(){
     checkSess();
     return;
   }
-  // Try to load from sheet — with timeout fallback for older browsers
+  // Try to load from sheet via JSONP (bypass CORS)
   if(note)note.textContent='⟳ Đang tải dữ liệu từ Sheet...';
-  var controller=new AbortController();
-  var timeoutId=setTimeout(()=>controller.abort(),15000);
-  fetch(SCRIPT_URL+'?action=get&t='+Date.now(),{signal:controller.signal,mode:'cors',credentials:'omit',redirect:'follow'})
-    .then(r=>{clearTimeout(timeoutId);return r.json();})
-    .then(r=>r.json()).then(d=>{
-      if(d.ok){
-        if(d.may)DB.may=d.may;
-        if(d.gc)DB.gc=d.gc;
-        if(d.partners&&d.partners.length)DB.partners=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
-        if(d.users&&d.users.length){USERS_CACHE=d.users;}
-        saveLocal();
-      }
+  fetchFromSheet(function(d){
+    if(d&&d.ok){
+      if(d.may)DB.may=d.may;
+      if(d.gc)DB.gc=d.gc;
+      if(d.partners&&d.partners.length)DB.partners=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
+      if(d.users&&d.users.length)USERS_CACHE=d.users;
+      saveLocal();
       if(note)note.textContent='✓ Đã kết nối Sheet';
-    }).catch(()=>{
+    }else{
       if(note)note.textContent='⚠ Không kết nối được Sheet, dùng dữ liệu cục bộ';
-    }).finally(()=>{
-      buildLoginGrid();
-      // Small delay to ensure UI updates before login check
-      setTimeout(()=>checkSess(),100);
-    });
+    }
+    buildLoginGrid();
+    setTimeout(()=>checkSess(),100);
+  });
 }
 
 // ============================================================
