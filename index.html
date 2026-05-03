@@ -1203,75 +1203,114 @@ function delPlan(gcId,plId){if(CU&&CU.role==='staff')return;var gc=DB.gc.find(x=
 // PARSE ZALO — IMPROVED PARSER
 // ============================================================
 function parseOrders(){
-  var raw=document.getElementById('auto-in').value.trim();if(!raw){alert('Nhập nội dung');return;}
-  var blocks=raw.split(/\n[ \t]*\n/).map(b=>b.trim()).filter(Boolean);
+  var raw=document.getElementById('auto-in').value.trim();
+  if(!raw){alert('Nhập nội dung');return;}
+
+  // ── HELPERS ──────────────────────────────────────────────────
+  function exH(s){
+    var m;
+    m=s.match(/\b1\s*m\s*(\d{1,2})\b/i);if(m){var d=m[1];return'1m'+(d.length===1?d+'0':d);}
+    m=s.match(/\b1[.,]\d{2}\s*m\b/i);if(m)return m[0].replace(',','.');
+    m=s.match(/\b(1[4-9]\d)\s*cm\b/i);if(m)return m[1]+'cm';
+    return'';
+  }
+  function exW(s){var m=s.match(/\b(\d{2,3})\s*kg\b/i);return m?m[1]+'kg':'';}
+  function exM(s){
+    var m=s.match(/\b(\d{2,3})\s*[-–]\s*(\d{2,3})\s*[-–]\s*(\d{2,3})\b/);
+    if(m)return m[1]+'-'+m[2]+'-'+m[3];
+    var ng=s.match(/ng[uư]?c\s*[-:]?\s*(\d{2,3})/i);
+    var eo=s.match(/\beo\s*[-:]?\s*(\d{2,3})/i);
+    if(ng||eo)return[(ng?'ngực '+ng[1]:''),(eo?'eo '+eo[1]:'')].filter(Boolean).join(' ');
+    return'';
+  }
+  function exSizes(s){
+    var sizes={},clean=s.replace(/\([^)]+\)/g,' ');
+    var szL=clean.match(/\bsize\s+(XL|[SML])\b/gi);
+    if(szL){szL.forEach(x=>{var m=x.match(/\b(XL|[SML])\b/i);if(m)sizes[m[1].toUpperCase()]=1;});return sizes;}
+    var parts=clean.split(/\s*-\s*/).map(p=>p.trim()).filter(Boolean);
+    parts.forEach(p=>{if(/^(XL|[SML])$/i.test(p))sizes[p.toUpperCase()]=1;});
+    return sizes;
+  }
+  function isMeasLine(line){
+    var s=line.replace(/^[-–•*\t\s]+/,'').trim();
+    return /\b\d+\s*kg\b/i.test(s)||/^1\s*m\s*\d/i.test(s)||/^1[.,]\d{2}\s*m/i.test(s)||/^1[4-9]\d\s*cm/i.test(s)||/^\d{2,3}[-–]\d{2,3}[-–]\d{2,3}$/.test(s);
+  }
+  function parseSP(rawLine, orderSizes){
+    var line=rawLine.replace(/^[-–•*\t]+\s*/,'').trim();
+    var noteParts=(line.match(/\(([^)]+)\)/g)||[]).map(x=>x.replace(/^\(|\)$/g,'').trim());
+    var work=line.replace(/\(([^)]+)\)/g,' ').replace(/\s+/g,' ').trim();
+    var inlineH=exH(work),inlineW=exW(work),inlineM=exM(work);
+    if(inlineH)work=work.replace(/\b1\s*m\s*\d{1,2}\b|\b1[.,]\d{2}\s*m\b|\b1[4-9]\d\s*cm\b/gi,' ');
+    if(inlineW)work=work.replace(/\b\d{2,3}\s*kg\b/gi,' ');
+    if(inlineM){work=work.replace(/\b\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}\b/,' ').replace(/ng[uư]?c\s*[-:]?\s*\d{2,3}/gi,' ').replace(/\beo\s*[-:]?\s*\d{2,3}/gi,' ');}
+    work=work.replace(/cắt\s+lên\s+\d+\s*cm/gi,' ').replace(/\s+/g,' ').trim();
+    var sizes=Object.assign({},orderSizes,exSizes(work));
+    var parts=work.split(/\s+-\s+|\s*-\s+|\s+-\s*/).map(p=>p.replace(/^(XL|[SML])$/i,'').replace(/\bsize\b/gi,'').trim()).filter(Boolean);
+    var name='',color='',extraNote=[];
+    parts.forEach(function(p,i){
+      if(i===0){name=p;return;}
+      if(!color&&isColor(p)){color=p;return;}
+      if(p&&!isColor(p))extraNote.push(p);
+    });
+    var sizeMeas=[inlineH,inlineW,inlineM].filter(Boolean).join(' ').trim();
+    var note=[].concat(noteParts,extraNote).join(' · ').trim();
+    return{name:name.trim(),color:color,sizes:sizes,sizeMeas:sizeMeas,note:note};
+  }
+
+  // ── MAIN PARSE ───────────────────────────────────────────────
+  var blocks=raw.split(/\n[ \t]*\n/).map(function(b){return b.trim();}).filter(Boolean);
   DB.parsed=[];
-  blocks.forEach(block=>{
-    var lines=block.split('\n').map(l=>l.trim()).filter(Boolean);if(!lines.length)return;
-    var hdr=lines[0],sep=hdr.split(/\s*[-–—]\s*/);
-    var code=sep[0].trim(),qn=sep.slice(1).join(' - ').trim();
-    var deadline=parseDeadline(qn)||parseDeadline(block)||addDays(td(),10);
-    var prods=[],ms=null;
-    lines.slice(1).forEach(line=>{
-      var stripped=line.replace(/^[\*\-•]\s*/,'').trim();
-      // số đo line: có kg — nhận cả dạng "1m62 76kg, 100-87-115"
-      if(/\d+\s*kg/i.test(stripped)){
-        var hm=stripped.match(/1[.,]?\d{2}\s*m(?:\s|$)|^\d{3}\s*cm/i);
-        var hm2=stripped.match(/(1[.,]?\d{2})m/i);
-        var wm=stripped.match(/(\d{2,3})\s*kg/i);
-        var szm=stripped.match(/(\d{2,3})\s*[-–,]\s*(\d{2,3})\s*[-–,]\s*(\d{2,3})/);
-        ms={
-          h:hm2?hm2[1].replace(',','.')+'m':'',
-          w:wm?wm[1]+'kg':'',
-          m:szm?szm[1]+'-'+szm[2]+'-'+szm[3]:''
-        };
+  blocks.forEach(function(block){
+    var lines=block.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+    if(!lines.length)return;
+    var hdr=lines[0];
+    var codeMatch=hdr.match(/^(DH\d+)/i);
+    if(!codeMatch)return;
+    var code=codeMatch[1];
+    var rest=hdr.slice(code.length).replace(/^\s*[-–]\s*/,'').trim();
+    var hdrNotes=(rest.match(/\(([^)]+)\)/g)||[]).map(function(x){return x.replace(/^\(|\)$/g,'').trim();});
+    var restClean=rest.replace(/\(([^)]+)\)/g,'').replace(/\s+/g,' ').trim();
+    var deadline=parseDeadline(restClean)||addDays(td(),10);
+    var qn=restClean.replace(/\d+\/\d+[^\s]*/,'').replace(/^\s*[-–]\s*/,'').trim();
+    if(isUrg({quicknote:qn})){}// keep qn as is
+    var orderSizes=exSizes(restClean);
+    var orderH=exH(restClean),orderW=exW(restClean),orderM=exM(restClean);
+    var ms=(orderH||orderW||orderM)?{h:orderH,w:orderW,m:orderM}:null;
+    var prods=[];
+    lines.slice(1).forEach(function(line){
+      var stripped=line.replace(/^[-–•*\t\s]+/,'').trim();
+      if(!stripped)return;
+      // Measurement-only line (no product dash structure)
+      if(isMeasLine(line)&&stripped.split(/\s*-\s*/).filter(Boolean).length<2){
+        var h=exH(stripped),w=exW(stripped),m=exM(stripped);
+        if(!ms)ms={h:'',w:'',m:''};
+        if(h)ms.h=h;if(w)ms.w=w;if(m)ms.m=m;
         return;
       }
-      // số đo 3 vòng sạch (không có kg)
-      if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}$/.test(stripped)){
-        if(!ms)ms={h:'',w:'',m:''};ms.m=stripped;return;
-      }
-      // SP line — phải bắt đầu bằng * hoặc - nhưng không phải dòng số đo
-      if(/^[\*\-•]\s*\S/.test(line)&&!/\d+\s*kg/i.test(stripped)){
-        var clean=stripped;
-        var sizes={};
-        var szM=clean.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/gi);
-        if(szM)szM.forEach(sm=>{var m2=sm.match(/([SMLX]{1,2})\s*[:=]\s*(\d+)/i);if(m2)sizes[m2[1].toUpperCase()]=parseInt(m2[2]);});
-        var noteParts=(clean.match(/\(([^)]+)\)/g)||[]).map(x=>x.replace(/^\(|\)$/g,'').trim());
-        var work=clean.replace(/\([^)]+\)/g,'').replace(/([SMLX]{1,2})\s*[:=]\s*\d+/gi,'').trim();
-        var parts=work.split(/\s*-\s*/).map(p=>p.trim()).filter(Boolean);
-        var name='',color='',sizeMeas='',noteExtra=[];
-        parts.forEach((p,i)=>{
-          if(/^1[.,]?\d{2}\s*m$/i.test(p)||/^\d{3}\s*cm$/i.test(p)){sizeMeas+=(sizeMeas?' ':'')+p;return;}
-          if(/^\d{2,3}\s*kg$/i.test(p)){sizeMeas+=(sizeMeas?' ':'')+p;return;}
-          if(/^\d{2,3}\s*[-–]\s*\d{2,3}\s*[-–]\s*\d{2,3}$/.test(p)){sizeMeas+=(sizeMeas?' ':'')+p;return;}
-          if(/^(S|M|L|XL)$/i.test(p)&&!szM){sizes[p.toUpperCase()]=1;return;}
-          if(/^(S|M|L|XL)\s*[×x]?\s*\d+$/i.test(p)){var sm2=p.match(/^(S|M|L|XL)\s*[×x]?\s*(\d+)$/i);if(sm2)sizes[sm2[1].toUpperCase()]=parseInt(sm2[2]);return;}
-          if(i===0){name=p;return;}
-          if(!color&&isColor(p)){color=p;return;}
-          if(p)noteExtra.push(p);
-        });
-        var note=[...noteParts,...noteExtra].join(' · ').trim();
-        if(!name&&parts.length)name=parts[0];
-        name=name.trim();
-        if(name)prods.push({name,color,sizes,sizeMeas,note});
+      // SP line
+      if(/^[-–•*]/.test(line)||line.length>0){
+        var sp=parseSP(line,orderSizes);
+        if(sp.name)prods.push(sp);
       }
     });
     if(!code)return;
-    DB.parsed.push({code,qn,deadline,ms,prods,isDup:DB.may.some(x=>x.code.toLowerCase()===code.toLowerCase())});
+    DB.parsed.push({code:code,qn:qn,deadline:deadline,ms:ms,prods:prods,isDup:DB.may.some(function(x){return x.code.toLowerCase()===code.toLowerCase();})});
   });
+
   if(!DB.parsed.length){alert('Không nhận diện được đơn nào');return;}
-  var dupN=DB.parsed.filter(x=>x.isDup).length;
+  var dupN=DB.parsed.filter(function(x){return x.isDup;}).length;
   document.getElementById('prev-t').textContent='Tìm thấy '+DB.parsed.length+' đơn'+(dupN?' (⚠ '+dupN+' có thể trùng)':'')+':';
-  document.getElementById('prev-list').innerHTML=DB.parsed.map(d=>
-    '<div class="prev-item'+(d.isDup?' dup':'')+'">'+
-    '<div class="prev-code">'+esc(d.code)+(d.qn?' — <span style="font-weight:400">'+esc(d.qn)+'</span>':'')+(isUrg(d)?'<span style="background:#FEF2F2;color:#991B1B;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:5px">Gấp</span>':'')+'<span style="font-size:11px;color:var(--grn);margin-left:7px">📅 '+fDF(d.deadline)+'</span></div>'+
+  document.getElementById('prev-list').innerHTML=DB.parsed.map(function(d){
+    return'<div class="prev-item'+(d.isDup?' dup':'')+'">'+
+    '<div class="prev-code">'+esc(d.code)+(d.qn?' — <span style="font-weight:400">'+esc(d.qn)+'</span>':'')+(isUrg(d)?'<span style="background:#FFC9DE;color:#8B1A3A;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:5px">Gấp</span>':'')+'<span style="font-size:11px;color:var(--grn);margin-left:7px">📅 '+fDF(d.deadline)+'</span></div>'+
     (d.isDup?'<div class="prev-dup">⚠ Mã này có thể đã tồn tại</div>':'')+
     (d.ms?'<div style="font-size:11px;color:var(--tx3);margin-top:2px">📏 '+[d.ms.h,d.ms.w,d.ms.m].filter(Boolean).join(' · ')+'</div>':'')+
-    d.prods.map(p=>'<div class="prev-prod">• '+esc(p.name)+(p.color?' · <span style="color:var(--tx)">'+esc(p.color)+'</span>':'')+(Object.keys(p.sizes||{}).length?' · '+Object.entries(p.sizes).map(([s,q])=>s+':'+q).join(' '):'')+(p.sizeMeas?' · '+esc(p.sizeMeas):'')+(p.note?' · <em>'+esc(p.note)+'</em>':'')+'</div>').join('')+
-    '</div>').join('');
+    d.prods.map(function(p){return'<div class="prev-prod">• '+esc(p.name)+(p.color?' · <b>'+esc(p.color)+'</b>':'')+(Object.keys(p.sizes||{}).length?' · '+Object.entries(p.sizes).map(function(e){return e[0]+':'+e[1];}).join(' '):'')+(p.sizeMeas?' · 📏'+esc(p.sizeMeas):'')+(p.note?' · <em>'+esc(p.note)+'</em>':'')+'</div>';}).join('')+
+    '</div>';
+  }).join('');
   document.getElementById('prev-box').style.display='block';
 }
+
 function confirmCreate(){
   var dups=[];
   DB.parsed.forEach(d=>{if(!d.code)return;if(d.isDup)dups.push(d.code);DB.may.push({id:uid(),code:d.code,date:td(),deadline:d.deadline,factory:'',status:'sent',quicknote:d.qn||'',ms:d.ms||null,prods:d.prods||[],error:'',log:[{date:td(),action:'Tạo từ Zalo',by:CU?CU.username:''}],createdBy:CU?CU.username:'',createdAt:td()});});
