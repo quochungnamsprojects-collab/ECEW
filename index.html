@@ -192,8 +192,8 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .mst-sel{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd2);cursor:pointer;font-family:var(--font);background:var(--sf);color:var(--tx);flex-shrink:0}
 .mst-sel:focus{outline:none;border-color:var(--acc)}
 .mspacer{flex:1;min-width:8px}
-.mmeta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tx);flex-shrink:0;white-space:nowrap}
-.mmeta b{color:var(--tx);font-weight:700}
+.mmeta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tx);font-weight:500;flex-shrink:0;white-space:nowrap}
+.mmeta b{color:var(--tx);font-weight:700;font-size:13px}
 .mmeta .ok{color:var(--grn);font-weight:600}
 .mmeta .wa{color:var(--warn);font-weight:600}
 .mmeta .er{color:var(--red);font-weight:600}
@@ -206,22 +206,31 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .dlbar{height:2px;background:var(--s2)}
 .dlbar-fill{height:2px;transition:width .3s}
 
-/* SP TABLE — 5 cols fixed */
+/* SP TABLE — pixel-perfect fixed columns */
 .spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd);table-layout:fixed}
-.spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left;overflow:hidden}
-.spt thead th:first-child{padding-left:12px;width:36px;text-align:center}
-.spt thead th.th-name{padding-left:10px;width:35%}
-.spt thead th.th-color{width:15%;padding-left:8px}
-.spt thead th.th-sz{width:18%;padding-left:8px}
-.spt thead th.th-note{width:32%;padding-left:8px;padding-right:14px}
+.spt thead tr,.spt tbody tr{display:table-row}
+.spt thead th,.spt tbody td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;box-sizing:border-box}
+/* Header */
+.spt thead th{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;background:var(--s2);border-bottom:0.5px solid var(--bd);padding:5px 0}
+/* Data rows */
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
-.spt tbody td{padding:6px 0;font-size:13px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);width:32px}
-.td-name{padding-left:8px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.td-color{padding-left:8px;color:var(--tx2);width:120px;overflow:hidden;text-overflow:ellipsis}
-.td-sz{padding-left:8px;width:110px}
-.td-note{padding-left:8px;padding-right:14px;color:var(--tx3);font-size:11px;font-style:italic;width:180px;overflow:hidden;text-overflow:ellipsis}
+.spt tbody td{padding:7px 0;font-size:13px}
+/* Col 1: STT - 36px */
+.spt thead th:first-child{width:36px;padding-left:14px;text-align:left}
+.spt tbody td:first-child{width:36px;padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);text-align:left}
+/* Col 2: Tên SP - flex remaining */
+.spt thead th.th-name,.spt tbody td.td-name{padding-left:8px}
+.spt thead th.th-name{width:auto}
+.spt tbody td.td-name{font-weight:500;color:var(--tx)}
+/* Col 3: Màu - 130px */
+.spt thead th.th-color,.spt tbody td.td-color{width:130px;padding-left:8px}
+.spt tbody td.td-color{color:var(--tx2)}
+/* Col 4: Size/Số đo - 140px */
+.spt thead th.th-sz,.spt tbody td.td-sz{width:140px;padding-left:8px}
+/* Col 5: Ghi chú - 200px */
+.spt thead th.th-note,.spt tbody td.td-note{width:200px;padding-left:8px;padding-right:14px}
+.spt tbody td.td-note{color:var(--tx3);font-size:11px;font-style:italic}
 .szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 6px;font-size:11px;font-weight:500;margin-right:3px}
 
 /* footer */
