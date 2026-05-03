@@ -799,7 +799,7 @@ function syncToSheet(){
   setSyncStatus('syncing');
   // partners stored as plain strings
   var payload={action:'save',may:DB.may,gc:DB.gc,partners:DB.partners.map(p=>typeof p==='object'?p.name:p)};
-  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)})
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload),redirect:'follow'})
     .then(r=>r.json()).then(d=>{
       if(d.ok){setSyncStatus('ok');lastSyncTs=Date.now();}
       else setSyncStatus('error');
@@ -810,7 +810,7 @@ function syncFromSheet(){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE')return;
   // don't pull if a form modal is open
   if(document.querySelector('.ov.open'))return;
-  fetch(SCRIPT_URL+'?action=get')
+  fetch(SCRIPT_URL+'?action=get&t='+Date.now(),{mode:'cors',credentials:'omit',redirect:'follow'})
     .then(r=>r.json()).then(d=>{
       if(!d.ok)return;
       var changed=false;
@@ -866,7 +866,7 @@ function initLoad(){
   if(note)note.textContent='⟳ Đang tải dữ liệu từ Sheet...';
   var controller=new AbortController();
   var timeoutId=setTimeout(()=>controller.abort(),15000);
-  fetch(SCRIPT_URL+'?action=get',{signal:controller.signal})
+  fetch(SCRIPT_URL+'?action=get&t='+Date.now(),{signal:controller.signal,mode:'cors',credentials:'omit',redirect:'follow'})
     .then(r=>{clearTimeout(timeoutId);return r.json();})
     .then(r=>r.json()).then(d=>{
       if(d.ok){
