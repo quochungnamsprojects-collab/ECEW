@@ -202,11 +202,11 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 /* SP TABLE — 5 cols fixed */
 .spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd);table-layout:fixed}
 .spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left;overflow:hidden}
-.spt thead th:first-child{padding-left:14px;width:32px}
-.spt thead th.th-name{padding-left:8px;width:auto}
-.spt thead th.th-color{width:120px;padding-left:8px}
-.spt thead th.th-sz{width:110px;padding-left:8px}
-.spt thead th.th-note{width:180px;padding-left:8px;padding-right:14px}
+.spt thead th:first-child{padding-left:12px;width:36px}
+.spt thead th.th-name{padding-left:8px;width:35%}
+.spt thead th.th-color{width:15%;padding-left:8px}
+.spt thead th.th-sz{width:18%;padding-left:8px}
+.spt thead th.th-note{width:32%;padding-left:8px;padding-right:14px}
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
 .spt tbody td{padding:6px 0;font-size:13px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1323,10 +1323,18 @@ function renderMay(){
       dlTxt='Cần lên: <b>'+fDF(d.deadline)+'</b>'+(duStr?' — <span style="color:'+duColor+'">'+duStr+'</span>':'');
     }
     // SP table 5 cols
+    // Build order-level measurement string
+    var orderMs=d.ms?[d.ms.h,d.ms.w,d.ms.m].filter(Boolean).join(' · '):'';
     var prodH=(d.prods||[]).map((p,i)=>{
       var szCol='';
-      if(szT(p.sizes||{})>0){szCol=Object.entries(p.sizes||{}).map(([s,q])=>'<span class="szp">'+s+'×'+q+'</span>').join('');}
-      else if(p.sizeMeas){szCol='<span style="font-size:12px;color:var(--tx2)">'+esc(p.sizeMeas)+'</span>';}
+      if(szT(p.sizes||{})>0){
+        szCol=Object.entries(p.sizes||{}).map(([s,q])=>'<span class="szp">'+s+'×'+q+'</span>').join('');
+      } else if(p.sizeMeas){
+        szCol='<span style="font-size:11px;color:var(--tx2)">'+esc(p.sizeMeas)+'</span>';
+      } else if(orderMs){
+        // show order-level measurement inline if no per-product size
+        szCol='<span style="font-size:11px;color:var(--tx3)">'+esc(orderMs)+'</span>';
+      }
       return '<tr><td>'+(i+1).toString().padStart(2,'0')+'</td>'+
         '<td class="td-name">'+esc(p.name)+'</td>'+
         '<td class="td-color">'+esc(p.color||'')+'</td>'+
@@ -1334,8 +1342,7 @@ function renderMay(){
         '<td class="td-note">'+esc(p.note||'')+'</td></tr>';
     }).join('');
     var footR='';
-    if(d.ms)footR='📏 <b>'+[d.ms.h,d.ms.w,d.ms.m].filter(Boolean).join(' · ')+'</b>';
-    else if(d.error)footR='⚠ '+esc(d.error);
+    if(d.error)footR='⚠ '+esc(d.error);
     var logH=d.log&&d.log.length?'<div class="mlog" id="mlog-'+d.id+'">'+d.log.map(l=>'<div class="mlog-item"><div class="mlog-dot"></div><span>'+fD(l.date)+' — '+esc(l.action)+(l.by?' ('+getUserName(l.by)+')':'')+'</span></div>').join('')+'</div>':'';
     var canEdit=CU&&(CU.role==='admin'||d.createdBy===CU.username);var canDel=CU&&(CU.role==='admin'||d.createdBy===CU.username);
     return '<div class="'+cc+'"><div class="mh">'+
