@@ -36,11 +36,7 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .lb-logo svg{width:28px;height:28px}
 .lb-h{font-size:22px;font-weight:700;margin-bottom:4px}
 .lb-sub{font-size:13px;color:var(--tx2);margin-bottom:28px}
-.ug{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
-.ubtn{padding:16px 12px;border-radius:12px;border:2px solid var(--bd2);background:var(--s2);cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;color:var(--tx);transition:all .15s;text-align:center}
-.ubtn:hover{border-color:var(--acc)}.ubtn.sel{border-color:var(--acc);background:var(--acc);color:#fff}
-.uav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 8px}
-.lp{width:100%;padding:11px 14px;border:1.5px solid var(--bd2);border-radius:var(--r1);font-size:15px;font-family:var(--font);text-align:center;letter-spacing:2px;margin-bottom:14px}
+.lp{width:100%;padding:11px 14px;border:1.5px solid var(--bd2);border-radius:var(--r1);font-size:14px;font-family:var(--font);background:var(--sf);color:var(--tx);margin-bottom:0}
 .lp:focus{outline:none;border-color:var(--acc)}
 .lerr{font-size:12px;color:var(--red);min-height:18px;margin-bottom:10px}
 .lbtn{width:100%;padding:13px;background:var(--acc);color:#fff;border:none;border-radius:var(--r1);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font)}
@@ -208,17 +204,17 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left;overflow:hidden}
 .spt thead th:first-child{padding-left:14px;width:32px}
 .spt thead th.th-name{padding-left:8px;width:auto}
-.spt thead th.th-color{width:110px;padding-left:8px}
-.spt thead th.th-sz{width:100px;padding-left:8px}
-.spt thead th.th-note{width:160px;padding-left:8px;padding-right:12px}
+.spt thead th.th-color{width:120px;padding-left:8px}
+.spt thead th.th-sz{width:110px;padding-left:8px}
+.spt thead th.th-note{width:180px;padding-left:8px;padding-right:14px}
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
 .spt tbody td{padding:6px 0;font-size:13px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);width:32px}
 .td-name{padding-left:8px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.td-color{padding-left:8px;color:var(--tx2);width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.td-sz{padding-left:8px;width:100px;white-space:nowrap}
-.td-note{padding-left:8px;padding-right:12px;color:var(--tx3);font-size:11px;font-style:italic;width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-color{padding-left:8px;color:var(--tx2);width:120px;overflow:hidden;text-overflow:ellipsis}
+.td-sz{padding-left:8px;width:110px}
+.td-note{padding-left:8px;padding-right:14px;color:var(--tx3);font-size:11px;font-style:italic;width:180px;overflow:hidden;text-overflow:ellipsis}
 .szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 6px;font-size:11px;font-weight:500;margin-right:3px}
 
 /* footer */
@@ -366,11 +362,14 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
     <div class="lb-logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h11" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
     <div class="lb-h">emwear & emchic</div>
     <div class="lb-sub">Hệ thống quản lý sản xuất</div>
-    <div class="ug" id="user-grid"><!-- filled by JS --></div>
-    <input class="lp" type="password" id="lp" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="fg" style="margin-bottom:12px;text-align:left">
+      <label class="fl" style="color:rgba(255,255,255,.0);display:none">Username</label>
+      <input class="lp" type="text" id="l-user" placeholder="Tên đăng nhập" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()" style="letter-spacing:0;margin-bottom:10px">
+      <input class="lp" type="password" id="l-pass" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
     <div class="lerr" id="lerr"></div>
     <button class="lbtn" onclick="doLogin()">Đăng nhập</button>
-    <div class="sync-note" id="sync-note">⟳ Đang tải dữ liệu từ Sheet...</div>
+    <div class="sync-note" id="sync-note"></div>
   </div>
 </div>
 
@@ -691,45 +690,24 @@ var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2o4R7EGiETOxXlnkN99b
 // ============================================================
 // AUTH & USERS
 // ============================================================
-var CU = null; // current user object {username, name, role, ...}
-var USERS_CACHE = []; // loaded from sheet
-var SU_KEY = null; // selected username on login screen
-
-// Fallback offline users (dùng khi chưa có Sheet)
+var CU = null;
+var USERS_CACHE = [];
 var OFFLINE_USERS = [
   {username:'hung', password:'HUNG_PASS', name:'Hưng', role:'admin', active:true},
   {username:'trang', password:'trang@2026', name:'Trang', role:'staff', active:true}
 ];
 
-function buildLoginGrid(){
-  var users = USERS_CACHE.length ? USERS_CACHE.filter(u=>u.active) : OFFLINE_USERS.filter(u=>u.active);
-  var colors = {hung:'#1D4ED8', trang:'#9333EA'};
-  var bgs = {hung:'#DBEAFE', trang:'#F3E8FF'};
-  document.getElementById('user-grid').innerHTML = users.map(u=>{
-    var c = colors[u.username]||'#6B6560';
-    var bg = bgs[u.username]||'#EDE9E4';
-    return '<div class="ubtn" id="ub-'+u.username+'" onclick="selU(\''+u.username+'\')">'+
-      '<div class="uav" style="background:'+bg+';color:'+c+'">'+u.name[0]+'</div>'+u.name+'</div>';
-  }).join('');
-}
-
-function selU(u){
-  SU_KEY=u;
-  document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('sel'));
-  var el=document.getElementById('ub-'+u);
-  if(el)el.classList.add('sel');
-  document.getElementById('lp').focus();
-  document.getElementById('lerr').textContent='';
-}
-
 function doLogin(){
-  if(!SU_KEY){document.getElementById('lerr').textContent='Chọn người dùng trước';return;}
-  var pass=document.getElementById('lp').value;
-  var users = USERS_CACHE.length ? USERS_CACHE : OFFLINE_USERS;
-  var user = users.find(u=>u.username===SU_KEY&&String(u.password)===pass&&u.active);
-  if(!user){document.getElementById('lerr').textContent='Mật khẩu không đúng';document.getElementById('lp').value='';return;}
-  localStorage.setItem('em7_sess',JSON.stringify({u:SU_KEY,exp:Date.now()+8*3600000}));
+  var uname=document.getElementById('l-user').value.trim().toLowerCase();
+  var pass=document.getElementById('l-pass').value;
+  if(!uname){document.getElementById('lerr').textContent='Nhập tên đăng nhập';return;}
+  if(!pass){document.getElementById('lerr').textContent='Nhập mật khẩu';return;}
+  var users=USERS_CACHE.length?USERS_CACHE:OFFLINE_USERS;
+  var user=users.find(u=>u.username===uname&&String(u.password)===pass&&u.active!==false);
+  if(!user){document.getElementById('lerr').textContent='Sai tên đăng nhập hoặc mật khẩu';document.getElementById('l-pass').value='';return;}
+  localStorage.setItem('em7_sess',JSON.stringify({u:uname,exp:Date.now()+8*3600000}));
   startApp(user);
+  setTimeout(syncFromSheet,500);
 }
 
 function checkSess(){
@@ -748,19 +726,12 @@ function startApp(user){
   CU=user;
   document.getElementById('lw').style.display='none';
   var a=document.getElementById('app');a.style.display='flex';
-  // header
   var uc={hung:'#1D4ED8',trang:'#9333EA'}[user.username]||'#6B6560';
   var ub={hung:'#DBEAFE',trang:'#F3E8FF'}[user.username]||'#EDE9E4';
   document.getElementById('h-user').innerHTML='<div class="ah-av" style="background:'+ub+';color:'+uc+'">'+user.name[0]+'</div><span>'+user.name+'</span>';
   var d=new Date();document.getElementById('h-date').textContent=['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
-  // admin tab
-  if(user.role==='admin'){
-    document.getElementById('sb-admin-ttl').style.display='';
-    document.getElementById('nav-admin').style.display='';
-  }
-  // staff restrictions on GC
+  if(user.role==='admin'){document.getElementById('sb-admin-ttl').style.display='';document.getElementById('nav-admin').style.display='';}
   applyRoleRestrictions();
-  // start auto sync
   startAutoSync();
   renderPt();renderMay();renderGC();updateBadges();
 }
@@ -768,7 +739,6 @@ function startApp(user){
 function applyRoleRestrictions(){
   if(!CU)return;
   if(CU.role==='staff'){
-    // staff: GC readonly
     var gcBtn=document.getElementById('gc-create-btn');if(gcBtn)gcBtn.style.display='none';
     var gcAuto=document.getElementById('gc-autobox');if(gcAuto)gcAuto.style.display='none';
     var ptAdd=document.getElementById('pt-add-wrap');if(ptAdd)ptAdd.style.display='none';
@@ -777,12 +747,13 @@ function applyRoleRestrictions(){
 }
 
 function doLogout(){
-  localStorage.removeItem('em7_sess');CU=null;SU_KEY=null;
+  localStorage.removeItem('em7_sess');CU=null;
+  if(syncTimer)clearInterval(syncTimer);
   document.getElementById('app').style.display='none';
   document.getElementById('lw').style.display='flex';
-  document.getElementById('lp').value='';
-  document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('sel'));
-  if(syncTimer)clearInterval(syncTimer);
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('lerr').textContent='';
 }
 
 // ============================================================
@@ -891,34 +862,8 @@ function initLoad(){
   DB.gc=JSON.parse(localStorage.getItem('em7_gc')||'[]');
   DB.partners=JSON.parse(localStorage.getItem('em7_partners')||'["BUPBES","NAN"]');
   USERS_CACHE=JSON.parse(localStorage.getItem('em7_users')||'[]');
-
-  // Build login grid from cache immediately
-  buildLoginGrid();
-
-  // Check session right away — if valid, go to app without waiting for sheet
-  if(checkSess())return;
-
-  // Not logged in — show login and load sheet in background
-  var note=document.getElementById('sync-note');
-  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE'){
-    if(note)note.textContent='⚠ Chưa cấu hình Sheet URL. Dữ liệu lưu cục bộ.';
-    return;
-  }
-  if(note)note.textContent='⟳ Đang tải dữ liệu từ Sheet...';
-  fetchFromSheet(function(d){
-    if(d&&d.ok){
-      if(d.may)DB.may=d.may;
-      if(d.gc)DB.gc=d.gc;
-      if(d.partners&&d.partners.length)DB.partners=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
-      if(d.users&&d.users.length)USERS_CACHE=d.users;
-      saveLocal();
-      if(note)note.textContent='✓ Đã kết nối Sheet';
-      // Rebuild login grid with fresh user list from sheet
-      buildLoginGrid();
-    }else{
-      if(note)note.textContent='⚠ Không kết nối được Sheet, dùng dữ liệu cục bộ';
-    }
-  });
+  // Check session immediately — no sheet fetch before login
+  checkSess();
 }
 
 // ============================================================
@@ -1502,7 +1447,7 @@ function saveUser(){
       .then(r=>r.json()).then(d=>{if(d.ok)toast('Đã lưu tài khoản lên Sheet','ok');})
       .catch(()=>toast('Lưu cục bộ, chưa sync Sheet','warn'));
   }
-  closeMo('modal-user');renderAdmin();buildLoginGrid();toast('Đã cập nhật tài khoản','ok');
+  closeMo('modal-user');renderAdmin();toast('Đã cập nhật tài khoản','ok');
 }
 function toggleUser(username){
   var users=USERS_CACHE.length?USERS_CACHE:OFFLINE_USERS;
