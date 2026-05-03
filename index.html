@@ -1460,7 +1460,7 @@ function renderMay(){
 
   var selAllWrap=document.getElementById('sel-all-wrap');
   if(!fil.length){document.getElementById('list-may').innerHTML='<div class="empty"><div class="empty-ico">📋</div>Chưa có đơn nào</div>';if(selAllWrap)selAllWrap.style.display='none';return;}
-  if(selAllWrap){selAllWrap.style.display='flex';var sc=document.getElementById('sel-all-count');if(sc)sc.textContent='('+fil.length+' đơn)';var ca=document.getElementById('chk-all');if(ca)ca.checked=fil.length>0&&fil.every(function(d){return DB.smay.has(d.id);});}
+  if(selAllWrap){selAllWrap.style.display='flex';var selCnt=document.getElementById('sel-all-count');if(selCnt)selCnt.textContent='('+fil.length+' đơn)';var chkAll=document.getElementById('chk-all');if(chkAll)chkAll.checked=fil.length>0&&fil.every(function(d){return DB.smay.has(d.id);});}
 
   document.getElementById('list-may').innerHTML=fil.slice().reverse().map(d=>{
     var a=getAlert(d);
