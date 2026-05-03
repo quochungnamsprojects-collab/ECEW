@@ -1442,7 +1442,7 @@ function renderMay(){
   var list=DB.may;
   var cnt={s:0,wm:0,u:0,late:0};
   list.forEach(d=>{var a=getAlert(d);if(d.status==='sent')cnt.s++;else if(d.status==='waiting_material')cnt.wm++;else if(d.status==='up')cnt.u++;if(a==='late')cnt.late++;});
-  document.getElementById('sts-may').innerHTML=sc('Tổng đơn',list.length)+sc('Đã gửi xưởng',cnt.s)+sc('Chờ NPL',cnt.wm,'a')+sc('Đã lên hàng',cnt.u,'g')+sc('Trễ hạn',cnt.late,'r');
+  document.getElementById('sts-may').innerHTML=statCard('Tổng đơn',list.length)+statCard('Đã gửi xưởng',cnt.s)+statCard('Chờ NPL',cnt.wm,'a')+statCard('Đã lên hàng',cnt.u,'g')+statCard('Trễ hạn',cnt.late,'r');
 
   var fil=list.filter(d=>{
     var a=getAlert(d),st=DB.fm.st,al=DB.fm.alert;
@@ -1554,7 +1554,7 @@ function renderGC(){
   var tSP=list.reduce((s,x)=>s+pTot(x.prods),0);
   var tP=list.reduce((s,x)=>s+gcPass(x),0),tF=list.reduce((s,x)=>s+gcFail(x),0);
   var tM=list.reduce((s,x)=>s+gcPass(x)*x.price,0);
-  document.getElementById('sts-gc').innerHTML=sc('Đơn GC',list.length)+sc('Tổng SP',tSP)+sc('QC đạt',tP,'g')+sc('QC lỗi',tF,'r')+sc('Tiền GC',tM>0?Math.round(tM/1000)+'K':'—','a');
+  document.getElementById('sts-gc').innerHTML=statCard('Đơn GC',list.length)+statCard('Tổng SP',tSP)+statCard('QC đạt',tP,'g')+statCard('QC lỗi',tF,'r')+statCard('Tiền GC',tM>0?Math.round(tM/1000)+'K':'—','a');
   var fil=list.filter(d=>{var r=gcPass(d),t=pTot(d.prods),st=DB.fg.st;if(st==='partial')return r<t&&d.status!=='done';if(st!=='all')return d.status===st;return true;});
   if(DB.fg.pt&&DB.fg.pt!=='all')fil=fil.filter(d=>d.partner===DB.fg.pt);
   if(DB.sg)fil=fil.filter(d=>smartMatch(d.code,DB.sg)||smartMatch(d.partner,DB.sg)||(d.prods||[]).some(p=>smartMatch(p.name,DB.sg)));
@@ -1593,7 +1593,7 @@ function renderGC(){
   }).join('');
 }
 
-function sc(l,v,a){return'<div class="sc"><div class="sc-l">'+l+'</div><div class="sc-v'+(a?' '+a:'')+'">'+v+'</div></div>';}
+function statCard(l,v,a){return'<div class="sc"><div class="sc-l">'+l+'</div><div class="sc-v'+(a?' '+a:'')+'">'+v+'</div></div>';}
 
 // ============================================================
 // ADMIN — USER MANAGEMENT
@@ -1682,7 +1682,7 @@ function renderReport(){
   var gcD=DB.gc.map(d=>{var bs=(d.batches||[]).filter(b=>b.date&&b.date.startsWith(m));var pass=bs.reduce((s,b)=>s+szT(b.pass||{}),0),fail=bs.reduce((s,b)=>s+szT(b.fail||{}),0);return{d,pass,fail,money:pass*d.price};}).filter(x=>x.pass>0||x.fail>0);
   var tM=gcD.reduce((s,x)=>s+x.money,0),tP=gcD.reduce((s,x)=>s+x.pass,0),tF=gcD.reduce((s,x)=>s+x.fail,0);
   document.getElementById('rpt-content').innerHTML=
-    '<div class="sts" style="margin-bottom:16px">'+sc('Đơn may HT',mayDone.length,'g')+sc('SP GC đạt',tP,'g')+sc('SP GC lỗi',tF,'r')+sc('Tiền GC',tM.toLocaleString()+'đ','a')+sc('Đơn GC có hàng',gcD.length)+'</div>'+
+    '<div class="sts" style="margin-bottom:16px">'+statCard('Đơn may HT',mayDone.length,'g')+statCard('SP GC đạt',tP,'g')+statCard('SP GC lỗi',tF,'r')+statCard('Tiền GC',tM.toLocaleString()+'đ','a')+statCard('Đơn GC có hàng',gcD.length)+'</div>'+
     '<div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--r3);overflow:hidden">'+
     '<div style="padding:12px 16px;font-weight:700;font-size:15px;border-bottom:1px solid var(--bd)">Đối soát gia công tháng '+p[1]+'/'+p[0]+'</div>'+
     (gcD.length?'<table class="rt"><thead><tr><th>Mã đơn</th><th>Đối tác</th><th>Sản phẩm</th><th style="text-align:right">Đạt</th><th style="text-align:right">Lỗi</th><th style="text-align:right">Đơn giá</th><th style="text-align:right">Thành tiền</th></tr></thead><tbody>'+
