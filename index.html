@@ -848,8 +848,7 @@ function pullFromSheet(){
     var newMay=Array.isArray(d.may)?d.may:DB.may;
     var newGc=Array.isArray(d.gc)?d.gc:DB.gc;
     if(JSON.stringify(newMay)!==JSON.stringify(DB.may)){DB.may=newMay;changed=true;}
-    if(JSON.stringify(newGc)!==JSON.stringify(DB.gc)){DB.gc=newGc;changed=true;}
-    if(d.partners&&d.partners.length){
+    if(JSON.stringify(newGc)!==JSON.stringify(DB.gc)){DB.gc=newGc;changed=true;}    if(d.partners&&d.partners.length){
       var np=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
       if(JSON.stringify(np)!==JSON.stringify(DB.partners)){DB.partners=np;changed=true;}
     }
@@ -948,7 +947,7 @@ function dSince(d){d=cleanDate(d);if(!d)return 0;return Math.floor((new Date(td(
 function dUntil(d){d=cleanDate(d);if(!d)return null;return Math.floor((new Date(d)-new Date(td()))/86400000);}
 function szT(sz){return(sz.S||0)+(sz.M||0)+(sz.L||0)+(sz.XL||0);}
 function pTot(prods){return(prods||[]).reduce((s,p)=>s+szT(p.sizes||{}),0);}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function esc(s){s=s===null||s===undefined?'':String(s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 function isUrg(d){return/gấp|gap|urgent|nhanh/i.test(d.quicknote||'');}
 
 // COLOR WHITELIST — không có 'trang' vì trùng tên người
@@ -1451,12 +1450,24 @@ function renderPtChips(){
 function setFgPt(pt){DB.fg.pt=pt;renderPtChips();renderGC();}
 
 function renderGC(){
-  // Normalize GC items to ensure required fields exist
-  var list=DB.gc.filter(d=>d&&d.id);
+  // Normalize: ensure all items have id, prods, batches, plans
+  var list=DB.gc.map(d=>{
+    if(!d||typeof d!=='object')return null;
+    if(!d.id)d.id=uid();
+    d.code=String(d.code||'');
+    d.partner=String(d.partner||'');
+    d.status=String(d.status||'making');
+    d.note=String(d.note||'');
+    if(!Array.isArray(d.prods))d.prods=[];
+    if(!Array.isArray(d.batches))d.batches=[];
+    if(!Array.isArray(d.plans))d.plans=[];
+    d.price=parseInt(d.price)||0;
+    return d;
+  }).filter(Boolean);
   var tSP=list.reduce((s,x)=>s+pTot(x.prods),0);
   var tP=list.reduce((s,x)=>s+gcPass(x),0),tF=list.reduce((s,x)=>s+gcFail(x),0);
   var tM=list.reduce((s,x)=>s+gcPass(x)*x.price,0);
-  document.getElementById('sts-gc').innerHTML=sc('Đơn GC',list.length)+sc('Tổng SP',tSP)+sc('QC đạt',tP,'g')+sc('QC lỗi',tF,'r')+sc('Tiền GC',Math.round(tM/1000)+'K','a');
+  document.getElementById('sts-gc').innerHTML=sc('Đơn GC',list.length)+sc('Tổng SP',tSP)+sc('QC đạt',tP,'g')+sc('QC lỗi',tF,'r')+sc('Tiền GC',tM>0?Math.round(tM/1000)+'K':'—','a');
   var fil=list.filter(d=>{var r=gcPass(d),t=pTot(d.prods),st=DB.fg.st;if(st==='partial')return r<t&&d.status!=='done';if(st!=='all')return d.status===st;return true;});
   if(DB.fg.pt&&DB.fg.pt!=='all')fil=fil.filter(d=>d.partner===DB.fg.pt);
   if(DB.sg)fil=fil.filter(d=>smartMatch(d.code,DB.sg)||smartMatch(d.partner,DB.sg)||(d.prods||[]).some(p=>smartMatch(p.name,DB.sg)));
