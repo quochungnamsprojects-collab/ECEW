@@ -465,6 +465,7 @@ DH047318 - 11/5 lên hàng
             <button class="bc" onclick="bulkSt('may','sent')">Đã gửi xưởng</button>
             <button class="bc" onclick="bulkSt('may','waiting_material')">Chờ NPL</button>
             <button class="bc" onclick="bulkSt('may','up')">Đã lên hàng</button>
+            <button class="bc" onclick="bulkDel()" style="background:rgba(254,202,202,.15);border-color:rgba(252,165,165,.4)">🗑 Xoá</button>
             <button class="bb-cancel" onclick="clearSel('may')">Bỏ chọn</button>
           </div>
           <div class="cl" id="list-may"></div>
@@ -756,8 +757,9 @@ function startApp(user){
   var d=new Date();document.getElementById('h-date').textContent=['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
   if(user.role==='admin'){document.getElementById('sb-admin-ttl').style.display='';document.getElementById('nav-admin').style.display='';}
   applyRoleRestrictions();
-  startAutoSync();
   renderPt();renderMay();renderGC();updateBadges();
+  // Pull Sheet 1 lần khi vào app — không auto-pull liên tục
+  pullFromSheet();
 }
 
 function applyRoleRestrictions(){
@@ -827,27 +829,41 @@ function syncToSheet(){
     .catch(()=>setSyncStatus('error'));
 }
 
-function syncFromSheet(){
+// Pull từ Sheet 1 lần — chỉ gọi khi mở app/F5, không auto-pull
+function pullFromSheet(){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE')return;
-  if(document.querySelector('.ov.open'))return;
+  setSyncStatus('syncing');
   fetchFromSheet(function(d){
-    if(!d||!d.ok)return;
+    if(!d||!d.ok){setSyncStatus('error');return;}
     var changed=false;
-    if(d.may&&JSON.stringify(d.may)!==JSON.stringify(DB.may)){DB.may=d.may;changed=true;}
-    if(d.gc&&JSON.stringify(d.gc)!==JSON.stringify(DB.gc)){DB.gc=d.gc;changed=true;}
+    // Replace hoàn toàn (kể cả mảng rỗng từ Sheet)
+    var newMay=Array.isArray(d.may)?d.may:DB.may;
+    var newGc=Array.isArray(d.gc)?d.gc:DB.gc;
+    if(JSON.stringify(newMay)!==JSON.stringify(DB.may)){DB.may=newMay;changed=true;}
+    if(JSON.stringify(newGc)!==JSON.stringify(DB.gc)){DB.gc=newGc;changed=true;}
     if(d.partners&&d.partners.length){
       var np=d.partners.map(p=>typeof p==='object'?(p.name||''):String(p)).filter(Boolean);
       if(JSON.stringify(np)!==JSON.stringify(DB.partners)){DB.partners=np;changed=true;}
     }
-    if(d.users&&d.users.length){USERS_CACHE=d.users;saveLocal();}
-    if(changed){saveLocal();if(!document.querySelector('.ov.open')){renderMay();renderGC();renderPt();updateBadges();}}
+    if(d.users&&d.users.length){USERS_CACHE=d.users;}
+    if(changed){
+      saveLocal();
+      // Giữ scroll position khi re-render
+      var main=document.querySelector('.main');
+      var scrollY=main?main.scrollTop:0;
+      renderMay();renderGC();renderPt();updateBadges();
+      if(main)setTimeout(()=>main.scrollTop=scrollY,0);
+    }
     setSyncStatus('ok');
   });
 }
 
+// syncFromSheet kept as alias for login flow compatibility
+function syncFromSheet(){pullFromSheet();}
+
 function startAutoSync(){
-  if(syncTimer)clearInterval(syncTimer);
-  syncTimer=setInterval(syncFromSheet,30000);
+  // Không auto-pull — app là nguồn chính, Sheet là backup
+  // Pull chỉ xảy ra 1 lần khi startApp()
 }
 
 function save(){
@@ -1021,6 +1037,23 @@ function bulkSt(type,status){
   s.forEach(id=>{var d=list.find(x=>x.id===id);if(!d)return;d.status=status;d.log=d.log||[];d.log.push({date:td(),action:st+' (hàng loạt)',by:CU?CU.username:''});});
   save();toast('Đã cập nhật '+s.size+' đơn → '+st,'ok');clearSel(type);
   if(type==='may'){renderMay();updateBadges();}else{renderGC();updateBadges();}
+}
+
+function bulkDel(){
+  var s=DB.smay;if(!s.size)return;
+  // Admin xoá tất cả, staff chỉ xoá đơn của mình
+  var canDel=[];var cantDel=0;
+  s.forEach(id=>{
+    var d=DB.may.find(x=>x.id===id);if(!d)return;
+    if(CU.role==='admin'||d.createdBy===CU.username)canDel.push(id);
+    else cantDel++;
+  });
+  if(!canDel.length){toast('Không có đơn nào được phép xoá','warn');return;}
+  var msg='Xoá '+canDel.length+' đơn đã chọn?'+(cantDel>0?' ('+cantDel+' đơn không có quyền xoá sẽ bỏ qua)':'');
+  if(!confirm(msg))return;
+  DB.may=DB.may.filter(x=>!canDel.includes(x.id));
+  save();toast('Đã xoá '+canDel.length+' đơn','ok');clearSel('may');
+  renderMay();updateBadges();
 }
 
 // ============================================================
