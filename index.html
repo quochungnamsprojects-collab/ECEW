@@ -63,6 +63,9 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .sync-dot.syncing{background:#FCD34D;animation:pulse .8s infinite}
 .sync-dot.error{background:#FCA5A5}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.font-ctrl{display:flex;align-items:center;gap:3px}
+.font-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;font-family:var(--font);font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;line-height:1}
+.font-btn:hover{background:rgba(255,255,255,.22)}
 .lo-btn{font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;cursor:pointer;font-family:var(--font);opacity:.7}
 .lo-btn:hover{opacity:1}
 
@@ -201,21 +204,21 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .dlbar-fill{height:2px;transition:width .3s}
 
 /* SP TABLE — 5 cols fixed */
-.spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd)}
-.spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left}
+.spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd);table-layout:fixed}
+.spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left;overflow:hidden}
 .spt thead th:first-child{padding-left:14px;width:32px}
-.spt thead th.th-name{padding-left:8px}
+.spt thead th.th-name{padding-left:8px;width:auto}
 .spt thead th.th-color{width:110px;padding-left:8px}
 .spt thead th.th-sz{width:100px;padding-left:8px}
 .spt thead th.th-note{width:160px;padding-left:8px;padding-right:12px}
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
-.spt tbody td{padding:6px 0;font-size:13px;vertical-align:middle}
+.spt tbody td{padding:6px 0;font-size:13px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);width:32px}
-.td-name{padding-left:8px;font-weight:500;color:var(--tx)}
+.td-name{padding-left:8px;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .td-color{padding-left:8px;color:var(--tx2);width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.td-sz{padding-left:8px;width:100px}
-.td-note{padding-left:8px;padding-right:12px;color:var(--tx3);font-size:11px;font-style:italic;width:160px}
+.td-sz{padding-left:8px;width:100px;white-space:nowrap}
+.td-note{padding-left:8px;padding-right:12px;color:var(--tx3);font-size:11px;font-style:italic;width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 6px;font-size:11px;font-weight:500;margin-right:3px}
 
 /* footer */
@@ -383,6 +386,10 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
     </div>
     <div class="ah-r">
       <div class="sync-ind" id="sync-ind"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">Đã lưu</span></div>
+      <div class="font-ctrl">
+        <button class="font-btn" onclick="changeFontSize(-1)" title="Giảm chữ">A−</button>
+        <button class="font-btn" onclick="changeFontSize(1)" title="Tăng chữ">A+</button>
+      </div>
       <div class="ah-user" id="h-user"></div>
       <div class="ah-date" id="h-date"></div>
       <button class="lo-btn" onclick="doLogout()">Đăng xuất</button>
@@ -729,8 +736,8 @@ function checkSess(){
   try{
     var s=JSON.parse(localStorage.getItem('em7_sess')||'{}');
     if(s.u&&Date.now()<s.exp){
-      var users = USERS_CACHE.length ? USERS_CACHE : OFFLINE_USERS;
-      var user = users.find(u=>u.username===s.u&&u.active);
+      var users=USERS_CACHE.length?USERS_CACHE:OFFLINE_USERS;
+      var user=users.find(u=>u.username===s.u&&u.active!==false);
       if(user){startApp(user);return true;}
     }
   }catch(e){}
@@ -861,7 +868,22 @@ function saveLocal(){
 }
 
 // ============================================================
-// INIT LOAD — load from Sheet first, fallback to localStorage
+// FONT SIZE
+// ============================================================
+var FONT_SIZES=[12,13,14,15,16];
+var curFontIdx=parseInt(localStorage.getItem('em7_font')||'2');
+function applyFontSize(){
+  document.body.style.fontSize=FONT_SIZES[curFontIdx]+'px';
+  localStorage.setItem('em7_font',curFontIdx);
+}
+function changeFontSize(d){
+  curFontIdx=Math.max(0,Math.min(FONT_SIZES.length-1,curFontIdx+d));
+  applyFontSize();
+}
+applyFontSize();
+
+// ============================================================
+// INIT LOAD — check session immediately, load Sheet in background
 // ============================================================
 function initLoad(){
   // Load from localStorage immediately
@@ -870,14 +892,18 @@ function initLoad(){
   DB.partners=JSON.parse(localStorage.getItem('em7_partners')||'["BUPBES","NAN"]');
   USERS_CACHE=JSON.parse(localStorage.getItem('em7_users')||'[]');
 
+  // Build login grid from cache immediately
+  buildLoginGrid();
+
+  // Check session right away — if valid, go to app without waiting for sheet
+  if(checkSess())return;
+
+  // Not logged in — show login and load sheet in background
   var note=document.getElementById('sync-note');
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE'){
     if(note)note.textContent='⚠ Chưa cấu hình Sheet URL. Dữ liệu lưu cục bộ.';
-    buildLoginGrid();
-    checkSess();
     return;
   }
-  // Try to load from sheet via JSONP (bypass CORS)
   if(note)note.textContent='⟳ Đang tải dữ liệu từ Sheet...';
   fetchFromSheet(function(d){
     if(d&&d.ok){
@@ -887,11 +913,11 @@ function initLoad(){
       if(d.users&&d.users.length)USERS_CACHE=d.users;
       saveLocal();
       if(note)note.textContent='✓ Đã kết nối Sheet';
+      // Rebuild login grid with fresh user list from sheet
+      buildLoginGrid();
     }else{
       if(note)note.textContent='⚠ Không kết nối được Sheet, dùng dữ liệu cục bộ';
     }
-    buildLoginGrid();
-    setTimeout(()=>checkSess(),100);
   });
 }
 
