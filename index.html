@@ -206,27 +206,23 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .dlbar{height:2px;background:var(--s2)}
 .dlbar-fill{height:2px;transition:width .3s}
 
-/* SP TABLE — fixed px columns, consistent across all cards */
+/* SP TABLE — resizable columns */
 .spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd);table-layout:fixed}
-.spt thead th{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;background:var(--s2);border-bottom:0.5px solid var(--bd);padding:5px 0;overflow:hidden;white-space:nowrap;text-align:left}
+.spt thead th{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;background:var(--s2);border-bottom:0.5px solid var(--bd);padding:5px 0;overflow:hidden;white-space:nowrap;text-align:left;position:relative;user-select:none;-webkit-user-select:none}
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
 .spt tbody td{padding:7px 0;font-size:13px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Col 1: # - 36px fixed */
 .spt thead th:first-child{width:36px;padding-left:14px}
-.spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3)}
-/* Col 2: Tên SP - fills remaining space */
-.spt thead th.th-name{padding-left:8px}
-.spt tbody td.td-name{padding-left:8px;font-weight:500;color:var(--tx)}
-/* Col 3: Màu - 120px fixed */
-.spt thead th.th-color{width:120px;padding-left:8px}
-.spt tbody td.td-color{padding-left:8px;color:var(--tx2)}
-/* Col 4: Size/Số đo - 150px fixed */
-.spt thead th.th-sz{width:150px;padding-left:8px}
-.spt tbody td.td-sz{padding-left:8px}
-/* Col 5: Ghi chú - 220px fixed */
-.spt thead th.th-note{width:220px;padding-left:8px;padding-right:14px}
-.spt tbody td.td-note{padding-left:8px;padding-right:14px;color:var(--tx3);font-size:11px;font-style:italic}
+.spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);text-align:center}
+.spt thead th.th-name,.spt tbody td.td-name{text-align:left;padding-left:8px}
+.spt tbody td.td-name{font-weight:500;color:var(--tx)}
+.spt thead th.th-color,.spt tbody td.td-color{text-align:center}
+.spt tbody td.td-color{color:var(--tx2)}
+.spt thead th.th-sz,.spt tbody td.td-sz{text-align:center}
+.spt thead th.th-note,.spt tbody td.td-note{text-align:left;padding-left:8px;padding-right:14px}
+.spt tbody td.td-note{color:var(--tx3);font-size:11px;font-style:italic}
+.col-rz{position:absolute;right:0;top:0;width:7px;height:100%;cursor:col-resize;z-index:2;background:transparent;transition:background .15s}
+.col-rz:hover,.col-rz.rz-active{background:rgba(29,78,216,.3);border-radius:2px}
 .szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 6px;font-size:11px;font-weight:500;margin-right:3px}
 
 /* footer */
@@ -1518,7 +1514,7 @@ function renderMay(){
       (canDel?'<button class="mact del" onclick="delMay(\''+d.id+'\')">Xoá</button>':'')+
       '</div></div>'+
       '<div class="dlbar"><div class="dlbar-fill" style="width:'+pct+'%;background:'+fc+'"></div></div>'+
-      (prodH?'<table class="spt"><thead><tr><th>#</th><th class="th-name">Tên sản phẩm</th><th class="th-color">Màu</th><th class="th-sz">Size / Số đo</th><th class="th-note">Ghi chú</th></tr></thead><tbody>'+prodH+'</tbody></table>':'')+
+      (prodH?buildSptHtml(prodH):'')+
       '<div class="mfoot"><span class="mf-log" onclick="togLog(\''+d.id+'\')">📋 <b>Lịch sử ('+(d.log||[]).length+')</b></span>'+(footR?'<span class="mf-r">'+footR+'</span>':'')+'</div>'+
       logH+'</div>';
   }).join('');
@@ -1703,6 +1699,72 @@ function exportCSV(){
   var csv=rows.map(r=>r.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
   var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='emwear-'+td()+'.csv';a.click();
 }
+
+// ============================================================
+// RESIZABLE COLUMNS — SP Table
+// ============================================================
+var SPT_DEFAULTS={name:300,color:110,sz:140,note:200};
+var SPT_MINS={name:120,color:70,sz:80,note:100};
+function getSptW(){try{return Object.assign({},SPT_DEFAULTS,JSON.parse(localStorage.getItem('em7_col')||'{}'));}catch(e){return Object.assign({},SPT_DEFAULTS);}}
+function saveSptW(col,w){var v=getSptW();v[col]=w;localStorage.setItem('em7_col',JSON.stringify(v));}
+function buildSptHtml(prodH){
+  var w=getSptW();
+  var ths='<th style="width:36px;padding-left:14px">#</th>'+
+    '<th class="th-name" style="width:'+w.name+'px">Tên sản phẩm<span class="col-rz" data-col="name"></span></th>'+
+    '<th class="th-color" style="width:'+w.color+'px">Màu<span class="col-rz" data-col="color"></span></th>'+
+    '<th class="th-sz" style="width:'+w.sz+'px">Size / Số đo<span class="col-rz" data-col="sz"></span></th>'+
+    '<th class="th-note" style="width:'+w.note+'px">Ghi chú</th>';
+  return '<table class="spt"><thead><tr>'+ths+'</tr></thead><tbody>'+prodH+'</tbody></table>';
+}
+// Drag logic
+var _rzState=null;
+document.addEventListener('mousedown',function(e){
+  var h=e.target.closest?e.target.closest('.col-rz'):null;
+  if(!h)return;
+  var col=h.getAttribute('data-col');
+  var th=h.parentElement;
+  _rzState={col:col,th:th,x0:e.clientX,w0:th.offsetWidth};
+  h.classList.add('rz-active');
+  document.body.style.cursor='col-resize';
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('mousemove',function(e){
+  if(!_rzState)return;
+  var dw=e.clientX-_rzState.x0;
+  var nw=Math.max(SPT_MINS[_rzState.col]||80,_rzState.w0+dw);
+  document.querySelectorAll('.spt thead th.th-'+_rzState.col).forEach(function(t){t.style.width=nw+'px';});
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('mouseup',function(e){
+  if(!_rzState)return;
+  saveSptW(_rzState.col,_rzState.th.offsetWidth);
+  _rzState.th.querySelector('.col-rz').classList.remove('rz-active');
+  document.body.style.cursor='';
+  _rzState=null;
+});
+// Touch support
+document.addEventListener('touchstart',function(e){
+  var h=e.target.closest?e.target.closest('.col-rz'):null;
+  if(!h)return;
+  var col=h.getAttribute('data-col');
+  var th=h.parentElement;
+  _rzState={col:col,th:th,x0:e.touches[0].clientX,w0:th.offsetWidth};
+  h.classList.add('rz-active');
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('touchmove',function(e){
+  if(!_rzState)return;
+  var dw=e.touches[0].clientX-_rzState.x0;
+  var nw=Math.max(SPT_MINS[_rzState.col]||80,_rzState.w0+dw);
+  document.querySelectorAll('.spt thead th.th-'+_rzState.col).forEach(function(t){t.style.width=nw+'px';});
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('touchend',function(e){
+  if(!_rzState)return;
+  saveSptW(_rzState.col,_rzState.th.offsetWidth);
+  _rzState.th.querySelector('.col-rz').classList.remove('rz-active');
+  _rzState=null;
+});
 
 // ============================================================
 // INIT
