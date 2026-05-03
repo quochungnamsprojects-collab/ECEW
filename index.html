@@ -951,7 +951,12 @@ function esc(s){s=s===null||s===undefined?'':String(s);return s.replace(/&/g,'&a
 function isUrg(d){return/gấp|gap|urgent|nhanh/i.test(d.quicknote||'');}
 
 // COLOR WHITELIST — không có 'trang' vì trùng tên người
-var COLOR_LIST=['trắng','white','kem','cream','vàng vani','vanilla','hồng','pink','hồng thạch anh','rose quartz','đỏ','red','vàng','yellow','gold','xanh dương','blue','navy','xanh navy','xanh cobalt','cobalt','xanh ngọc','teal','xanh rêu','green','olive','nude','đen','black','xám','grey','gray','be','beige','ivory','tím','purple','lavender','cam','orange','nâu','brown','hồng pastel','pastel','xanh mint','mint','trắng kem','vani','trắng sữa','be hồng','xanh lá'];
+var COLOR_LIST=['trắng','white','kem','cream','vàng vani','vanilla','hồng','pink',
+  'hồng thạch anh','rose quartz','đỏ','red','vàng','yellow','gold','xanh dương','blue',
+  'navy','xanh navy','xanh cobalt','cobalt','xanh ngọc','teal','xanh rêu','green','olive',
+  'nude','đen','black','xám','grey','gray','be','beige','ivory','tím','purple','lavender',
+  'cam','orange','nâu','brown','hồng pastel','pastel','xanh mint','mint','trắng kem','vani',
+  'trắng sữa','be hồng','xanh lá','xanh','ghi','rêu','bơ'];
 function isColor(token){var t=token.toLowerCase().trim();return COLOR_LIST.some(c=>t===c||t.startsWith(c+' ')||t.endsWith(' '+c));}
 
 // DEADLINE LOGIC
@@ -1232,10 +1237,21 @@ function parseOrders(){
     return sizes;
   }
   function isMeasLine(line){
-    var s=line.replace(/^[-–•*\t\s]+/,'').trim();
-    return /\b\d+\s*kg\b/i.test(s)||/^1\s*m\s*\d/i.test(s)||/^1[.,]\d{2}\s*m/i.test(s)||/^1[4-9]\d\s*cm/i.test(s)||/^\d{2,3}[-–]\d{2,3}[-–]\d{2,3}$/.test(s);
+    var s=line.replace(/^[-–•*	\s]+/,'').trim();
+    if(!s)return false;
+    var hasKg=/\d+\s*kg/i.test(s);
+    var startsH=/^1\s*m\s*\d/i.test(s)||/^1[.,]\d{2}\s*m/i.test(s)||/^1[4-9]\d\s*cm/i.test(s);
+    var pure3=/^\d{2,3}[-–]\d{2,3}[-–]\d{2,3}$/.test(s);
+    if(!hasKg&&!startsH&&!pure3)return false;
+    // If line has product-like text (long non-numeric words after dash), treat as SP
+    var parts=s.split(/\s*-\s*/).filter(Boolean);
+    if(parts.length>=2){
+      var nonMeas=parts.filter(function(p){return!/^\d+$/.test(p)&&!/\d+\s*kg/i.test(p)&&!/^1\s*m/i.test(p)&&!/^1[4-9]\d\s*cm/i.test(p)&&!/^\d{2,3}[-–]\d{2,3}/.test(p);});
+      if(nonMeas.some(function(p){return p.replace(/[^a-zA-ZÀ-ỹ]/g,'').length>5;}))return false;
+    }
+    return true;
   }
-  function parseSP(rawLine, orderSizes){
+  function parseSP(rawLine, orderSizes, orderMs){
     var line=rawLine.replace(/^[-–•*\t]+\s*/,'').trim();
     var noteParts=(line.match(/\(([^)]+)\)/g)||[]).map(x=>x.replace(/^\(|\)$/g,'').trim());
     var work=line.replace(/\(([^)]+)\)/g,' ').replace(/\s+/g,' ').trim();
@@ -1254,6 +1270,10 @@ function parseOrders(){
     });
     var sizeMeas=[inlineH,inlineW,inlineM].filter(Boolean).join(' ').trim();
     var note=[].concat(noteParts,extraNote).join(' · ').trim();
+    // If no per-product measurement, inherit from order-level ms
+    if(!sizeMeas&&orderMs){
+      sizeMeas=[orderMs.h,orderMs.w,orderMs.m].filter(Boolean).join(' ').trim();
+    }
     return{name:name.trim(),color:color,sizes:sizes,sizeMeas:sizeMeas,note:note};
   }
 
@@ -1289,7 +1309,7 @@ function parseOrders(){
       }
       // SP line
       if(/^[-–•*]/.test(line)||line.length>0){
-        var sp=parseSP(line,orderSizes);
+        var sp=parseSP(line,orderSizes,ms);
         if(sp.name)prods.push(sp);
       }
     });
