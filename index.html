@@ -150,6 +150,8 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 
 /* BULK */
 .bb{background:var(--acc);color:#fff;border-radius:var(--r2);padding:9px 14px;display:none;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.sel-all-wrap{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);padding:4px 0;cursor:pointer}
+.sel-all-wrap input{width:15px;height:15px;accent-color:var(--acc);cursor:pointer}
 .bb.on{display:flex}
 .bb-info{font-size:12px;font-weight:700}
 .bc{padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)}
@@ -190,8 +192,8 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .mst-sel{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd2);cursor:pointer;font-family:var(--font);background:var(--sf);color:var(--tx);flex-shrink:0}
 .mst-sel:focus{outline:none;border-color:var(--acc)}
 .mspacer{flex:1;min-width:8px}
-.mmeta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tx2);flex-shrink:0;white-space:nowrap}
-.mmeta b{color:var(--tx);font-weight:600}
+.mmeta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tx);flex-shrink:0;white-space:nowrap}
+.mmeta b{color:var(--tx);font-weight:700}
 .mmeta .ok{color:var(--grn);font-weight:600}
 .mmeta .wa{color:var(--warn);font-weight:600}
 .mmeta .er{color:var(--red);font-weight:600}
@@ -207,8 +209,8 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 /* SP TABLE — 5 cols fixed */
 .spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd);table-layout:fixed}
 .spt thead th{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;background:var(--s2);border-bottom:0.5px solid var(--bd);text-align:left;overflow:hidden}
-.spt thead th:first-child{padding-left:12px;width:36px}
-.spt thead th.th-name{padding-left:8px;width:35%}
+.spt thead th:first-child{padding-left:12px;width:36px;text-align:center}
+.spt thead th.th-name{padding-left:10px;width:35%}
 .spt thead th.th-color{width:15%;padding-left:8px}
 .spt thead th.th-sz{width:18%;padding-left:8px}
 .spt thead th.th-note{width:32%;padding-left:8px;padding-right:14px}
@@ -472,6 +474,10 @@ DH047318 - 11/5 lên hàng
             <button class="bc" onclick="bulkSt('may','up')">Đã lên hàng</button>
             <button class="bc" onclick="bulkDel()" style="background:rgba(254,202,202,.15);border-color:rgba(252,165,165,.4)">🗑 Xoá</button>
             <button class="bb-cancel" onclick="clearSel('may')">Bỏ chọn</button>
+          </div>
+          <div class="sel-all-wrap" id="sel-all-wrap" style="display:none">
+            <input type="checkbox" id="chk-all" onchange="togSelAll(this.checked)">
+            <label for="chk-all">Chọn tất cả <span id="sel-all-count"></span></label>
           </div>
           <div class="cl" id="list-may"></div>
         </div>
@@ -1042,6 +1048,26 @@ function togEx(k){DB.ex[k]=!DB.ex[k];document.getElementById('fc-'+k).classList.
 // ============================================================
 function togSel(type,id){var s=type==='may'?DB.smay:DB.sgc;if(s.has(id))s.delete(id);else s.add(id);updBB(type);if(type==='may')renderMay();else renderGC();}
 function clearSel(type){if(type==='may')DB.smay.clear();else DB.sgc.clear();updBB(type);if(type==='may')renderMay();else renderGC();}
+
+function togSelAll(checked){
+  var visible=[];
+  document.querySelectorAll('#list-may .mh-chk input[type=checkbox]').forEach(function(cb){
+    var card=cb.closest('.mc');if(!card)return;
+    var id=card.querySelector('[onchange*="togSel"]');
+    if(!id)return;
+    var m=card.querySelector('.mcode');
+    if(!m)return;
+    // get id from onchange attr
+    var onch=cb.getAttribute('onchange');var idMatch=onch&&onch.match(/'([^']+)'\)/);
+    if(idMatch){var did=idMatch[1];visible.push(did);if(checked)DB.smay.add(did);else DB.smay.delete(did);}
+    cb.checked=checked;
+  });
+  updBB('may');
+  var wrap=document.getElementById('sel-all-wrap');
+  var cnt=document.getElementById('sel-all-count');
+  if(cnt)cnt.textContent='('+visible.length+' đơn)';
+  document.querySelector('#chk-all').checked=checked;
+}
 function updBB(type){var s=type==='may'?DB.smay:DB.sgc;var b=document.getElementById('bb-'+type);var i=document.getElementById('bi-'+type);b.classList.toggle('on',s.size>0);if(i)i.textContent=s.size+' đơn được chọn';}
 function bulkSt(type,status){
   var s=type==='may'?DB.smay:DB.sgc;var list=type==='may'?DB.may:DB.gc;
@@ -1322,7 +1348,7 @@ function parseOrders(){
   document.getElementById('prev-t').textContent='Tìm thấy '+DB.parsed.length+' đơn'+(dupN?' (⚠ '+dupN+' có thể trùng)':'')+':';
   document.getElementById('prev-list').innerHTML=DB.parsed.map(function(d){
     return'<div class="prev-item'+(d.isDup?' dup':'')+'">'+
-    '<div class="prev-code">'+esc(d.code)+(d.qn?' — <span style="font-weight:400">'+esc(d.qn)+'</span>':'')+(isUrg(d)?'<span style="background:#FFC9DE;color:#8B1A3A;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:5px">Gấp</span>':'')+'<span style="font-size:11px;color:var(--grn);margin-left:7px">📅 '+fDF(d.deadline)+'</span></div>'+
+    '<div class="prev-code">'+esc(d.code)+(d.qn?' — <span style="font-weight:400">'+esc(d.qn)+'</span>':'')+(isUrg(d)?'<span style="background:#FFC9DE;color:#8B1A3A;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:5px">🔥🔥🔥 Gấp</span>':'')+'<span style="font-size:11px;color:var(--grn);margin-left:7px">📅 '+fDF(d.deadline)+'</span></div>'+
     (d.isDup?'<div class="prev-dup">⚠ Mã này có thể đã tồn tại</div>':'')+
     (d.ms?'<div style="font-size:11px;color:var(--tx3);margin-top:2px">📏 '+[d.ms.h,d.ms.w,d.ms.m].filter(Boolean).join(' · ')+'</div>':'')+
     d.prods.map(function(p){return'<div class="prev-prod">• '+esc(p.name)+(p.color?' · <b>'+esc(p.color)+'</b>':'')+(Object.keys(p.sizes||{}).length?' · '+Object.entries(p.sizes).map(function(e){return e[0]+':'+e[1];}).join(' '):'')+(p.sizeMeas?' · 📏'+esc(p.sizeMeas):'')+(p.note?' · <em>'+esc(p.note)+'</em>':'')+'</div>';}).join('')+
@@ -1432,7 +1458,9 @@ function renderMay(){
   if(DB.ex.mine)fil=fil.filter(d=>d.createdBy===(CU?CU.username:''));
   if(DB.sm)fil=fil.filter(d=>smartMatch(d.code,DB.sm)||(d.prods||[]).some(p=>smartMatch(p.name,DB.sm)||smartMatch(p.color,DB.sm))||smartMatch(d.factory,DB.sm)||smartMatch(d.quicknote,DB.sm));
 
-  if(!fil.length){document.getElementById('list-may').innerHTML='<div class="empty"><div class="empty-ico">📋</div>Chưa có đơn nào</div>';return;}
+  var selAllWrap=document.getElementById('sel-all-wrap');
+  if(!fil.length){document.getElementById('list-may').innerHTML='<div class="empty"><div class="empty-ico">📋</div>Chưa có đơn nào</div>';if(selAllWrap)selAllWrap.style.display='none';return;}
+  if(selAllWrap){selAllWrap.style.display='flex';var sc=document.getElementById('sel-all-count');if(sc)sc.textContent='('+fil.length+' đơn)';var ca=document.getElementById('chk-all');if(ca)ca.checked=fil.length>0&&fil.every(function(d){return DB.smay.has(d.id);});}
 
   document.getElementById('list-may').innerHTML=fil.slice().reverse().map(d=>{
     var a=getAlert(d);
@@ -1476,7 +1504,7 @@ function renderMay(){
       '<div class="mh-main"><span class="mcode">'+esc(d.code)+'</span>'+
       '<select class="mst-sel" onchange="chStMay(\''+d.id+'\',this.value)">'+stOpts+'</select>'+
       (a==='late'?'<span class="pill p-late">Trễ hạn</span>':a==='near'?'<span class="pill p-near">Sắp trễ</span>':'')+
-      (isUrg(d)?'<span class="pill p-urg">Gấp</span>':'')+
+      (isUrg(d)?'<span class="pill p-urg">🔥🔥🔥 Gấp</span>':'')+
       '<span class="mspacer"></span>'+
       '<div class="mmeta"><span>Cho may: <b>'+fDF(d.date)+'</b></span>'+(dlTxt?'<span>'+dlTxt+'</span>':'')+(d.factory?'<span>XW: <b>'+esc(d.factory)+'</b></span>':'')+'</div>'+
       getCreatorPill(d.createdBy)+'</div>'+
