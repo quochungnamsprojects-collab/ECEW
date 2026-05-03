@@ -702,12 +702,36 @@ function doLogin(){
   var pass=document.getElementById('l-pass').value;
   if(!uname){document.getElementById('lerr').textContent='Nhập tên đăng nhập';return;}
   if(!pass){document.getElementById('lerr').textContent='Nhập mật khẩu';return;}
-  var users=USERS_CACHE.length?USERS_CACHE:OFFLINE_USERS;
-  var user=users.find(u=>u.username===uname&&String(u.password)===pass&&u.active!==false);
-  if(!user){document.getElementById('lerr').textContent='Sai tên đăng nhập hoặc mật khẩu';document.getElementById('l-pass').value='';return;}
-  localStorage.setItem('em7_sess',JSON.stringify({u:uname,exp:Date.now()+8*3600000}));
-  startApp(user);
-  setTimeout(syncFromSheet,500);
+
+  function tryLogin(users){
+    var user=users.find(u=>u.username===uname&&String(u.password)===pass&&u.active!==false);
+    if(!user){
+      document.getElementById('lerr').textContent='Sai tên đăng nhập hoặc mật khẩu';
+      document.getElementById('l-pass').value='';
+      return false;
+    }
+    localStorage.setItem('em7_sess',JSON.stringify({u:uname,exp:Date.now()+8*3600000}));
+    startApp(user);
+    setTimeout(syncFromSheet,500);
+    return true;
+  }
+
+  // Try with cached users first
+  var cached=USERS_CACHE.length?USERS_CACHE:OFFLINE_USERS;
+  if(tryLogin(cached))return;
+
+  // If failed and Sheet configured, fetch fresh users and retry
+  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_APPS_SCRIPT_URL_HERE')return;
+  document.getElementById('lerr').textContent='Đang kiểm tra...';
+  fetchFromSheet(function(d){
+    if(d&&d.ok&&d.users&&d.users.length){
+      USERS_CACHE=d.users;
+      saveLocal();
+      tryLogin(USERS_CACHE);
+    } else {
+      document.getElementById('lerr').textContent='Sai tên đăng nhập hoặc mật khẩu';
+    }
+  });
 }
 
 function checkSess(){
