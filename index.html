@@ -865,7 +865,7 @@ function initLoad(){
   // Try to load from sheet — with timeout fallback for older browsers
   if(note)note.textContent='⟳ Đang tải dữ liệu từ Sheet...';
   var controller=new AbortController();
-  var timeoutId=setTimeout(()=>controller.abort(),8000);
+  var timeoutId=setTimeout(()=>controller.abort(),15000);
   fetch(SCRIPT_URL+'?action=get',{signal:controller.signal})
     .then(r=>{clearTimeout(timeoutId);return r.json();})
     .then(r=>r.json()).then(d=>{
@@ -881,7 +881,8 @@ function initLoad(){
       if(note)note.textContent='⚠ Không kết nối được Sheet, dùng dữ liệu cục bộ';
     }).finally(()=>{
       buildLoginGrid();
-      checkSess();
+      // Small delay to ensure UI updates before login check
+      setTimeout(()=>checkSess(),100);
     });
 }
 
