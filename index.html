@@ -206,31 +206,27 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .dlbar{height:2px;background:var(--s2)}
 .dlbar-fill{height:2px;transition:width .3s}
 
-/* SP TABLE — pixel-perfect fixed columns */
+/* SP TABLE — fixed px columns, consistent across all cards */
 .spt{width:100%;border-collapse:collapse;border-top:0.5px solid var(--bd);table-layout:fixed}
-.spt thead tr,.spt tbody tr{display:table-row}
-.spt thead th,.spt tbody td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;box-sizing:border-box}
-/* Header */
-.spt thead th{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;background:var(--s2);border-bottom:0.5px solid var(--bd);padding:5px 0}
-/* Data rows */
+.spt thead th{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;background:var(--s2);border-bottom:0.5px solid var(--bd);padding:5px 0;overflow:hidden;white-space:nowrap;text-align:left}
 .spt tbody tr{border-bottom:0.5px solid var(--bd)}
 .spt tbody tr:last-child{border-bottom:none}
-.spt tbody td{padding:7px 0;font-size:13px}
-/* Col 1: STT - 36px */
-.spt thead th:first-child{width:36px;padding-left:14px;text-align:left}
-.spt tbody td:first-child{width:36px;padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3);text-align:left}
-/* Col 2: Tên SP - flex remaining */
-.spt thead th.th-name,.spt tbody td.td-name{padding-left:8px}
-.spt thead th.th-name{width:auto}
-.spt tbody td.td-name{font-weight:500;color:var(--tx)}
-/* Col 3: Màu - 130px */
-.spt thead th.th-color,.spt tbody td.td-color{width:130px;padding-left:8px}
-.spt tbody td.td-color{color:var(--tx2)}
-/* Col 4: Size/Số đo - 140px */
-.spt thead th.th-sz,.spt tbody td.td-sz{width:140px;padding-left:8px}
-/* Col 5: Ghi chú - 200px */
-.spt thead th.th-note,.spt tbody td.td-note{width:200px;padding-left:8px;padding-right:14px}
-.spt tbody td.td-note{color:var(--tx3);font-size:11px;font-style:italic}
+.spt tbody td{padding:7px 0;font-size:13px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Col 1: # - 36px fixed */
+.spt thead th:first-child{width:36px;padding-left:14px}
+.spt tbody td:first-child{padding-left:14px;font-size:11px;font-weight:500;color:var(--tx3)}
+/* Col 2: Tên SP - fills remaining space */
+.spt thead th.th-name{padding-left:8px}
+.spt tbody td.td-name{padding-left:8px;font-weight:500;color:var(--tx)}
+/* Col 3: Màu - 120px fixed */
+.spt thead th.th-color{width:120px;padding-left:8px}
+.spt tbody td.td-color{padding-left:8px;color:var(--tx2)}
+/* Col 4: Size/Số đo - 150px fixed */
+.spt thead th.th-sz{width:150px;padding-left:8px}
+.spt tbody td.td-sz{padding-left:8px}
+/* Col 5: Ghi chú - 220px fixed */
+.spt thead th.th-note{width:220px;padding-left:8px;padding-right:14px}
+.spt tbody td.td-note{padding-left:8px;padding-right:14px;color:var(--tx3);font-size:11px;font-style:italic}
 .szp{display:inline-flex;align-items:center;gap:2px;background:var(--s2);border-radius:3px;padding:2px 6px;font-size:11px;font-weight:500;margin-right:3px}
 
 /* footer */
