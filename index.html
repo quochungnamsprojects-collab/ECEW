@@ -1330,7 +1330,7 @@ function delGC(id){if(CU&&CU.role==='staff')return;if(confirm('Xoá đơn này?'
 function chStGC(id,v){if(CU&&CU.role==='staff')return;var d=DB.gc.find(x=>x.id===id);if(!d)return;d.status=v;save();renderGC();updateBadges();}
 
 // BATCH
-function openBatch(id){if(CU&&CU.role==='staff')return;DB.bT=id;document.getElementById('b-date').value=td();['b-deliver','b-note','b-err'].forEach(x=>document.getElementById(x).value='');['S','M','L','XL'].forEach(s=>{document.getElementById('bp-'+s).value='';document.getElementById('bf-'+s).value='';});openMo('modal-batch');}
+function openBatch(id){if(CU&&CU.role==='staff')return;DB.bT=id;DB.batchMode=null;document.getElementById('b-date').value=td();['b-deliver','b-note','b-err'].forEach(x=>document.getElementById(x).value='');['S','M','L','XL'].forEach(s=>{document.getElementById('bp-'+s).value='';document.getElementById('bf-'+s).value='';});openMo('modal-batch');}
 function saveBatch(){
   var isSX=DB.batchMode==='sx';
   var gc=isSX?(DB.sx||[]).find(x=>x.id===DB.bT):DB.gc.find(x=>x.id===DB.bT);if(!gc)return;
@@ -1651,14 +1651,14 @@ function togLog(id){var el=document.getElementById('mlog-'+id);if(el)el.classLis
 // Render partner filter chips in GC filter bar
 function renderPtChips(){
   var el=document.getElementById('gc-pt-filters');if(!el)return;
-  var pts=['all',...DB.partners];
-  el.innerHTML=pts.map(p=>{
-    var isAll=p==='all';
-    var on=DB.fg.pt===p;
-    var label=isAll?'Tất cả':p;
-    return '<button class="fc'+(on?' on':'')+'" onclick="setFgPt(\''+esc(p)+'\')" style="'+(on&&!isAll?'background:#85E3FF;color:#0D4C73;border-color:#85E3FF':'')+'">'+esc(label)+'</button>';
+  var pts=['all'].concat(DB.partners);
+  el.innerHTML=pts.map(function(p){
+    var isAll=p==='all';var on=DB.fg.pt===p;var label=isAll?'Tất cả':p;
+    return'<button class="fc'+(on?' on':'')+'" data-gcpt="'+esc(p)+'" style="'+(on&&!isAll?'background:#85E3FF;color:#0D4C73;border-color:#85E3FF':'')+'">'+esc(label)+'</button>';
   }).join('');
+  el.querySelectorAll('[data-gcpt]').forEach(function(b){b.onclick=function(){setFgPt(this.getAttribute('data-gcpt'));};});
 }
+
 function setFgPt(pt){DB.fg.pt=pt;renderPtChips();renderGC();}
 
 function renderGC(){
@@ -1695,7 +1695,11 @@ function renderGC(){
       '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
       ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
       '<td class="td-tot">'+szT(p.sizes||{})+'</td></tr>').join('');
-    var planChips=(d.plans&&d.plans.length)?d.plans.map(pl=>{var sz=Object.entries(pl.sizes||{}).map(([s,q])=>s+'~'+q).join(' ');return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':' <span onclick="delPlan(\''+d.id+'\',\''+pl.id+'\')" style="cursor:pointer;opacity:.4;margin-left:2px">✕</span>')+'</div>';}).join(''):'<span class="empty-note">Chưa có kế hoạch</span>';
+        var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
+      var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
+      return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':'<span class="del-plan-sx" data-sid="'+esc(d.id)+'" data-pid="'+esc(pl.id)+'" style="cursor:pointer;opacity:.4;margin-left:4px">✕</span>')+'</div>';
+    }).join(''):'<span class="empty-note">Chưa có kế hoạch</span>';
+
     var batchChips=(d.batches&&d.batches.length)?d.batches.map((b,i)=>{var sz=Object.entries(b.pass||{}).map(([s,q])=>s+'+'+q).join(' ');return'<div class="batch-chip"><b>Đợt '+(i+1)+'</b> · '+fD(b.date)+(sz?' · '+sz:'')+'</div>';}).join(''):'<span class="empty-note">Chưa có đợt nào</span>';
     return '<div class="'+gcCls+'"><div class="gch">'+
       '<div class="gch-chk"><input type="checkbox" '+(DB.sgc.has(d.id)?'checked':'')+' onchange="togSel(\'gc\',\''+d.id+'\')"></div>'+
@@ -1836,12 +1840,17 @@ function renderSXPtChips(){
   var el=document.getElementById('sx-pt-filters');if(!el)return;
   var el2=document.getElementById('sx-pt-chips');
   var isAdmin=CU&&CU.role==='admin';
-  if(el2)el2.innerHTML=DB.partners.map((p,i)=>'<div class="pt-chip">'+esc(p)+(isAdmin&&i>1?'<button class="pt-chip-del" onclick="removePt('+i+')" title="Xoá">✕</button>':'')+'</div>').join('');
-  var pts=['all',...DB.partners];
-  el.innerHTML=pts.map(p=>{var isAll=p==='all';var on=DB.fsx.pt===p;
-    return '<button class="fc'+(on?' on':'')+'" onclick="setFsxPt(''+esc(p)+'')" style="'+(on&&!isAll?'background:#85E3FF;color:#0D4C73;border-color:#85E3FF':'')+'">'+esc(isAll?'Tất cả':p)+'</button>';
+  if(el2)el2.innerHTML=DB.partners.map(function(p,i){
+    return'<div class="pt-chip">'+esc(p)+(isAdmin&&i>1?'<button class="pt-chip-del" onclick="removePt('+i+')" title="Xoá">✕</button>':'')+'</div>';
   }).join('');
+  var pts=['all'].concat(DB.partners);
+  el.innerHTML=pts.map(function(p){
+    var isAll=p==='all';var on=DB.fsx.pt===p;var label=isAll?'Tất cả':p;
+    return'<button class="fc'+(on?' on':'')+'" data-sxpt="'+esc(p)+'" style="'+(on&&!isAll?'background:#85E3FF;color:#0D4C73;border-color:#85E3FF':'')+'">'+esc(label)+'</button>';
+  }).join('');
+  el.querySelectorAll('[data-sxpt]').forEach(function(b){b.onclick=function(){setFsxPt(this.getAttribute('data-sxpt'));};});
 }
+
 function setFsxPt(pt){DB.fsx.pt=pt;renderSXPtChips();renderSX();}
 
 // SX Product rows
@@ -1850,10 +1859,11 @@ function addSXPR(d){
   var id='sp'+uid();sxps.push(id);
   var n=d?d.name:'',sz=d?d.sizes||{}:{};
   document.getElementById('sx-prod-rows').insertAdjacentHTML('beforeend',
-    '<div class="pe" id="'+id+'"><div class="pe-h"><span class="pe-n">SP '+(sxps.length)+'</span><button class="btn btn-sm btn-r" onclick="removeSXPR(''+id+'')">Xoá</button></div>'+
+    '<div class="pe" id="'+id+'"><div class="pe-h"><span class="pe-n">SP '+(sxps.length)+'</span><button class="btn btn-sm btn-r" onclick="removeSXPR(this.closest(\'.pe\').id)">Xoá</button></div>'+
     '<input class="fi" placeholder="Tên hàng *" id="'+id+'-n" value="'+esc(n)+'" style="margin-bottom:8px">'+
-    '<div class="szg">'+['S','M','L','XL'].map(s=>'<div class="sw"><div class="sw-l">'+s+'</div><input type="number" id="'+id+'-'+s+'" placeholder="0" min="0" value="'+(sz[s]||'')+'"></div>').join('')+'</div></div>');
+    '<div class="szg">'+['S','M','L','XL'].map(function(s){return'<div class="sw"><div class="sw-l">'+s+'</div><input type="number" id="'+id+'-'+s+'" placeholder="0" min="0" value="'+(sz[s]||'')+'"></div>';}).join('')+'</div></div>');
 }
+
 function removeSXPR(id){document.getElementById(id).remove();sxps=sxps.filter(x=>x!==id);sxps.forEach((r,i)=>{var el=document.getElementById(r);if(el)el.querySelector('.pe-n').textContent='SP '+(i+1);});}
 function getSXPRs(){return sxps.map(id=>{var n=(document.getElementById(id+'-n')||{}).value||'';if(!n.trim())return null;var sz={};['S','M','L','XL'].forEach(s=>{var v=parseInt((document.getElementById(id+'-'+s)||{}).value)||0;if(v>0)sz[s]=v;});return{name:n.trim(),sizes:sz};}).filter(Boolean);}
 
@@ -1966,20 +1976,24 @@ function renderSX(){
       '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
       ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
       '<td class="td-tot">'+szT(p.sizes||{})+'</td></tr>').join('');
-    var planChips=(d.plans&&d.plans.length)?d.plans.map(pl=>{var sz=Object.entries(pl.sizes||{}).map(([s,q])=>s+'~'+q).join(' ');return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':' <span onclick="delPlanSX(''+d.id+'',''+pl.id+'')" style="cursor:pointer;opacity:.4;margin-left:2px">✕</span>')+'</div>';}).join(''):'<span class="empty-note">Chưa có kế hoạch</span>';
+        var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
+      var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
+      return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':'<span class="del-plan-sx" data-sid="'+esc(d.id)+'" data-pid="'+esc(pl.id)+'" style="cursor:pointer;opacity:.4;margin-left:4px">✕</span>')+'</div>';
+    }).join(''):'<span class="empty-note">Chưa có kế hoạch</span>';
+
     var batchChips=(d.batches&&d.batches.length)?d.batches.map((b,i)=>{var sz=Object.entries(b.pass||{}).map(([s,q])=>s+'+'+q).join(' ');return'<div class="batch-chip"><b>Đợt '+(i+1)+'</b> · '+fD(b.date)+(sz?' · '+sz:'')+'</div>';}).join(''):'<span class="empty-note">Chưa có đợt nào</span>';
     return '<div class="'+gcCls+'"><div class="gch">'+
-      '<div class="gch-chk"><input type="checkbox" '+(DB.ssx.has(d.id)?'checked':'')+' onchange="togSelSX(''+d.id+'')"></div>'+
+      '<div class="gch-chk"><input type="checkbox" '+(DB.ssx.has(d.id)?'checked':'')+' data-sxid="'+d.id+'" class="sx-chk"></div>'+
       '<div class="gch-main"><span class="gccode">'+esc(d.code)+'</span>'+
       '<span class="pill '+ptCls+'">'+esc(d.partner||'')+'</span>'+
       (isStaff?'<span class="pill" style="background:var(--s2)">'+((GSX[d.status]||{}).l||d.status)+'</span>':
-      '<select class="gcst-sel" onchange="chStSX(''+d.id+'',this.value)">'+stOpts+'</select>')+
+      '<select class="gcst-sel" data-sxid2="'+d.id+'" onchange="chStSX(this.dataset.sxid2,this.value)">'+stOpts+'</select>')+
       (full?'<span class="pill p-up">Đủ hàng</span>':'<span style="font-size:12px;color:var(--tx2)">Còn thiếu <b style="color:var(--warn)">'+rem+'</b></span>')+
       '<span class="gcspacer"></span>'+
       '<div class="gcmeta"><span>Đặt: <b>'+fDF(d.date)+'</b></span>'+(d.eta?'<span>DK: <b>'+fDF(d.eta)+'</b></span>':'')+'</div>'+
       getCreatorPill(d.createdBy)+'</div>'+
       (isStaff?'':
-      '<div class="gch-r"><button class="gact g" onclick="openBatchSX(''+d.id+'')">+ Đợt thực</button><button class="gact b" onclick="openPlanSX(''+d.id+'')">+ Dự kiến</button><button class="gact" onclick="openSXModal(''+d.id+'')">Sửa</button><button class="gact del" onclick="delSX(''+d.id+'')">Xoá</button></div>')+
+      '<div class="gch-r"><button class="gact g" data-batch-sx="'+d.id+'">+ Đợt thực</button><button class="gact b" data-plan-sx="'+d.id+'">+ Dự kiến</button><button class="gact" data-edit-sx="'+d.id+'">Sửa</button><button class="gact del" data-del-sx="'+d.id+'">Xoá</button></div>')+
       '</div>'+
       '<div class="gpg"><span class="gpg-pct"'+(full?' style="color:var(--grn)"':pct>=50?'':' style="color:var(--warn)"')+'>'+pct+'%</span>'+
       '<div class="gpg-bar"><div class="gpg-fill'+(full?' ok':pct>=50?'':' wa')+'" style="width:'+pct+'%"></div></div>'+
@@ -1987,6 +2001,15 @@ function renderSX(){
       '<table class="gct"><thead><tr class="gct-hdr"><td class="td-n">#</td><td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td><td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td><td class="td-tot" style="padding-right:14px">Tổng</td></tr></thead><tbody>'+spRows+'</tbody></table>'+
       '<div class="gcf"><div class="gcf-half"><span class="gcf-lbl">Dự kiến</span>'+planChips+'</div><div class="gcf-half"><span class="gcf-lbl">Đã về</span>'+batchChips+'</div></div></div>';
   }).join('');
+  // Event delegation for SX list
+  elList.querySelectorAll('.sx-chk').forEach(function(cb){
+    cb.onchange=function(){togSelSX(this.dataset.sxid);};
+  });
+  elList.querySelectorAll('[data-del-sx]').forEach(function(b){b.onclick=function(){delSX(this.dataset.delSx);};});
+  elList.querySelectorAll('[data-batch-sx]').forEach(function(b){b.onclick=function(){openBatchSX(this.dataset.batchSx);};});
+  elList.querySelectorAll('[data-plan-sx]').forEach(function(b){b.onclick=function(){openPlanSX(this.dataset.planSx);};});
+  elList.querySelectorAll('[data-edit-sx]').forEach(function(b){b.onclick=function(){openSXModal(this.dataset.editSx);};});
+  elList.querySelectorAll('.del-plan-sx').forEach(function(b){b.onclick=function(){delPlanSX(this.dataset.sid,this.dataset.pid);};});
 }
 
 function delPlanSX(sxId,plId){if(CU&&CU.role==='staff')return;var d=(DB.sx||[]).find(x=>x.id===sxId);if(!d)return;d.plans=(d.plans||[]).filter(p=>p.id!==plId);save();renderSX();}
