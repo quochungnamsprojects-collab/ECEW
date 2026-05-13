@@ -187,6 +187,8 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
 .p-hung{background:#C4FAF8;color:#0C447C}
 .p-trang{background:#E8DAFF;color:#5B21B6}
 .p-bup{background:#85E3FF;color:#0D4C73;font-weight:600}
+.p-emw{background:#AFF8DB;color:#0D5C3A;font-weight:600}
+.p-emc{background:#FFC9DE;color:#8B1A3A;font-weight:600}
 .p-nan{background:#AFF8DB;color:#0D5C3A;font-weight:600}
 .p-pt{background:var(--s2);color:var(--tx2);font-weight:600}
 .mst-sel{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd2);cursor:pointer;font-family:var(--font);background:var(--sf);color:var(--tx);flex-shrink:0}
@@ -408,7 +410,6 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
       <button class="ni on" id="nav-may" onclick="swTab('may')"><span class="ni-ico">✂️</span><span class="ni-lbl">Đơn May</span><span class="ni-bdg" id="cnt-may" style="display:none"></span></button>
       <button class="ni" id="nav-gc" onclick="swTab('gc')"><span class="ni-ico">🧵</span><span class="ni-lbl">Gia Công</span><span class="ni-bdg" id="cnt-gc" style="display:none"></span></button>
       <div class="sb-ttl">BÁO CÁO</div>
-      <button class="ni" id="nav-sx" onclick="swTab('sx')"><span class="ni-ico">🏗️</span><span class="ni-lbl">Sản Xuất</span><span class="ni-bdg" id="cnt-sx" style="display:none"></span></button>
       <button class="ni" id="nav-bc" onclick="swTab('bc')"><span class="ni-ico">📊</span><span class="ni-lbl">Tổng Hợp</span></button>
       <div class="sb-ttl" id="sb-admin-ttl" style="display:none">QUẢN TRỊ</div>
       <button class="ni" id="nav-admin" onclick="swTab('admin')" style="display:none"><span class="ni-ico">⚙️</span><span class="ni-lbl">Tài Khoản</span></button>
@@ -538,39 +539,24 @@ DH047318 - 11/5 lên hàng
             <button class="bb-cancel" onclick="clearSel('gc')">Bỏ chọn</button>
           </div>
           <div class="cl" id="list-gc"></div>
-        </div>
-
-
-        <!-- ===== SẢN XUẤT ===== -->
-        <div id="sec-sx" class="sec">
-          <div class="tb">
-            <div class="tb-l"><span class="pg-t">Hàng sản xuất</span></div>
-            <button class="btn btn-a" id="sx-create-btn" onclick="openSXModal()">+ Tạo thủ công</button>
-          </div>
-          <!-- PARTNER INLINE (shared with GC) -->
-          <div class="pt-inline">
-            <span class="pt-inline-t">Đối tác:</span>
-            <div class="pt-chips" id="sx-pt-chips"></div>
-            <div class="pt-add" id="sx-pt-add-wrap">
-              <input id="new-sx-pt" placeholder="Thêm đối tác..." onkeydown="if(event.key==='Enter')addPartner()">
-              <button class="btn btn-sm btn-a" onclick="addPartner()">+</button>
-            </div>
-          </div>
-          <!-- AUTO BOX -->
-          <div class="abox" id="sx-autobox">
+          <!-- SẢN XUẤT sub-section inside GC tab -->
+          <div class="sx-divider">🏗️ Hàng Sản Xuất</div>
+          <div id="sx-autobox-inline" class="abox" style="margin-bottom:10px">
             <div class="abox-t">✦ Nhập nhanh hàng sản xuất</div>
-            <textarea class="ata" id="sx-in" style="min-height:70px" placeholder="BUPBES - Váy Ngắn Tơ Bèo - Trắng - 5S 10M 5L&#10;NAN - Jumpsuit Betty - Đen - 20M 10L"></textarea>
-            <div class="ahint">Mỗi dòng = 1 SP: <code>đối tác - tên SP - màu - 5S 10M 5L 3XL</code></div>
-            <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-              <button class="btn btn-a" onclick="parseSX()">Tạo đơn</button>
+            <textarea class="ata" id="sx-in" style="min-height:60px" placeholder="EMWEAR - Váy Ngắn Tơ Bèo - Trắng - 5S 10M 5L&#10;EMCHIC - Jumpsuit Betty - Đen - 20M 10L"></textarea>
+            <div class="ahint">Mỗi dòng = 1 SP: <code>EMWEAR/EMCHIC - tên SP - màu - 5S 10M 5L</code></div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+              <button class="btn btn-a" id="sx-create-btn" onclick="parseSX()">Tạo đơn</button>
               <button class="btn" onclick="document.getElementById('sx-in').value=''">Xoá</button>
               <span id="sx-ok" style="font-size:12px;color:var(--grn);display:none;font-weight:600"></span>
             </div>
           </div>
           <div class="sts" id="sts-sx"></div>
-          <div class="fb">
-            <div class="srch-wrap"><span class="srch-ico">🔍</span><input class="srch" id="s-sx" placeholder="Tìm mã đơn, tên đối tác, sản phẩm..." oninput="DB.ss=this.value.toLowerCase();renderSX()"></div>
+          <div class="fb" id="sx-fb" style="margin-bottom:8px">
             <div class="fb-row">
+              <span class="fb-lbl">Brand:</span>
+              <div id="sx-pt-filters" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+              <div class="fc-sep"></div>
               <span class="fb-lbl">Trạng thái:</span>
               <select class="fsel" id="fsel-sx" onchange="DB.fsx.st=this.value;renderSX()">
                 <option value="all">Tất cả</option>
@@ -578,9 +564,6 @@ DH047318 - 11/5 lên hàng
                 <option value="done">Đã lên hàng</option>
                 <option value="partial">Chưa đủ hàng</option>
               </select>
-              <div class="fc-sep"></div>
-              <span class="fb-lbl">Đối tác:</span>
-              <div id="sx-pt-filters" style="display:flex;gap:5px;flex-wrap:wrap"></div>
             </div>
           </div>
           <div class="bb" id="bb-sx">
@@ -592,6 +575,10 @@ DH047318 - 11/5 lên hàng
           </div>
           <div class="cl" id="list-sx"></div>
         </div>
+
+
+        <!-- ===== SẢN XUẤT ===== -->
+
 
         <!-- ===== BÁO CÁO ===== -->
         <div id="sec-bc" class="sec">
@@ -621,7 +608,7 @@ DH047318 - 11/5 lên hàng
   <input type="hidden" id="ms-id">
   <div class="fr c3">
     <div class="fg"><label class="fl">Mã đơn *</label><input class="fi" id="ms-code" placeholder="SX001"></div>
-    <div class="fg"><label class="fl">Đối tác *</label><select class="fi" id="ms-pt"></select></div>
+    <div class="fg"><label class="fl">Brand *</label><select class="fi" id="ms-pt"><option value="EMWEAR">EMWEAR</option><option value="EMCHIC">EMCHIC</option></select></div>
     <div class="fg"><label class="fl">Ngày đặt</label><input class="fi" type="date" id="ms-date"></div>
   </div>
   <div class="fr c2">
@@ -1129,14 +1116,13 @@ function toast(msg,type,dur){
 // TAB
 // ============================================================
 function swTab(t){
-  ['may','gc','sx','bc','admin'].forEach(x=>{
+  ['may','gc','bc','admin'].forEach(x=>{
     var s=document.getElementById('sec-'+x);if(s)s.classList.toggle('on',x===t);
     var n=document.getElementById('nav-'+x);if(n)n.classList.toggle('on',x===t);
   });
   if(t==='bc'){popMonths();renderReport();}
   if(t==='admin')renderAdmin();
-  if(t==='gc')renderPtChips();
-  if(t==='sx'){renderSXPtChips();renderSX();}
+  if(t==='gc'){renderPtChips();renderSXPtChips();renderSX();}
   updateBadges();
 }
 function updateBadges(){
@@ -1689,12 +1675,18 @@ function renderGC(){
     var recv=gcPass(d),fail=gcFail(d),tot=pTot(d.prods),rem=Math.max(0,tot-recv);
     var pct=tot>0?Math.round(recv/tot*100):0,full=recv>=tot&&tot>0;
     var stOpts=Object.entries(GST).map(([k,v])=>'<option value="'+k+'"'+(d.status===k?' selected':'')+'>'+v.l+'</option>').join('');
-    var ptCls=d.partner==='BUPBES'?'p-bup':d.partner==='NAN'?'p-nan':'p-pt';
+    var ptCls=d.partner==='EMWEAR'?'p-emw':d.partner==='EMCHIC'?'p-emc':'p-pt';
     var gcCls='gc '+(full?'done':d.status==='producing'?'prod':d.status==='making'?'mak':'app')+(DB.sgc.has(d.id)?' sel':'');
-    var spRows=(d.prods||[]).map((p,i)=>'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
-      '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
-      ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
-      '<td class="td-tot">'+szT(p.sizes||{})+'</td></tr>').join('');
+    var _rv={};['S','M','L','XL'].forEach(s=>{_rv[s]=(d.batches||[]).reduce((a,b)=>a+((b.pass||{})[s]||0),0);});
+    var spRows=(d.prods||[]).map((p,i)=>{
+      var tot=szT(p.sizes||{});
+      var rem=['S','M','L','XL'].reduce((a,s)=>a+Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0)),0);
+      return'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
+        '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
+        ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
+        '<td class="td-tot">'+tot+'</td>'+
+        '<td class="td-tot" style="padding-right:14px;font-weight:700;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?rem:'✓')+'</td></tr>';
+    }).join('');
         var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
       var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
       return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':'<span class="del-plan-sx" data-sid="'+esc(d.id)+'" data-pid="'+esc(pl.id)+'" style="cursor:pointer;opacity:.4;margin-left:4px">✕</span>')+'</div>';
@@ -1717,7 +1709,7 @@ function renderGC(){
       '<div class="gpg"><span class="gpg-pct"'+(full?' style="color:var(--grn)"':pct>=50?'':' style="color:var(--warn)"')+'>'+pct+'%</span>'+
       '<div class="gpg-bar"><div class="gpg-fill'+(full?' ok':pct>=50?'':' wa')+'" style="width:'+pct+'%"></div></div>'+
       '<span class="gpg-info"><b>'+recv+'</b> / '+tot+' sp &nbsp;·&nbsp; <span class="'+(rem>0?'wa':'ok')+'">'+( rem>0?'còn thiếu '+rem:'hoàn thành')+'</span></span></div>'+
-      '<table class="gct"><thead><tr class="gct-hdr"><td class="td-n">#</td><td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td><td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td><td class="td-tot" style="padding-right:14px">Tổng</td></tr></thead><tbody>'+spRows+'</tbody></table>'+
+      '<table class="gct"><thead><tr class="gct-hdr"><td class="td-n">#</td><td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td><td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td><td class="td-tot" style="padding-right:14px">Tổng</td><td class="td-tot" style="padding-right:14px;color:var(--warn)">Còn lại</td></tr></thead><tbody>'+spRows+'</tbody></table>'+
       '<div class="gcf"><div class="gcf-half"><span class="gcf-lbl">Dự kiến</span>'+planChips+'</div><div class="gcf-half"><span class="gcf-lbl">Đã về</span>'+batchChips+'</div></div></div>';
   }).join('');
 }
@@ -1836,17 +1828,14 @@ function sxPass(d){return(d.batches||[]).reduce((s,b)=>s+szT(b.pass||{}),0);}
 function sxFail(d){return(d.batches||[]).reduce((s,b)=>s+szT(b.fail||{}),0);}
 
 // Partner chips for SX (shared partners)
+var SX_BRANDS=['EMWEAR','EMCHIC'];
 function renderSXPtChips(){
   var el=document.getElementById('sx-pt-filters');if(!el)return;
-  var el2=document.getElementById('sx-pt-chips');
-  var isAdmin=CU&&CU.role==='admin';
-  if(el2)el2.innerHTML=DB.partners.map(function(p,i){
-    return'<div class="pt-chip">'+esc(p)+(isAdmin&&i>1?'<button class="pt-chip-del" onclick="removePt('+i+')" title="Xoá">✕</button>':'')+'</div>';
-  }).join('');
-  var pts=['all'].concat(DB.partners);
+  var pts=['all'].concat(SX_BRANDS);
   el.innerHTML=pts.map(function(p){
     var isAll=p==='all';var on=DB.fsx.pt===p;var label=isAll?'Tất cả':p;
-    return'<button class="fc'+(on?' on':'')+'" data-sxpt="'+esc(p)+'" style="'+(on&&!isAll?'background:#85E3FF;color:#0D4C73;border-color:#85E3FF':'')+'">'+esc(label)+'</button>';
+    var activeStyle=on&&!isAll?(p==='EMWEAR'?'background:#AFF8DB;color:#0D5C3A;border-color:#AFF8DB':'background:#FFC9DE;color:#8B1A3A;border-color:#FFC9DE'):'';
+    return'<button class="fc'+(on?' on':'')+'" data-sxpt="'+esc(p)+'" style="'+activeStyle+'">'+esc(label)+'</button>';
   }).join('');
   el.querySelectorAll('[data-sxpt]').forEach(function(b){b.onclick=function(){setFsxPt(this.getAttribute('data-sxpt'));};});
 }
@@ -1878,7 +1867,8 @@ function openSXModal(editId){
   document.getElementById('ms-eta').value=d?d.eta:'';
   document.getElementById('ms-st').value=d?d.status:'sent';
   document.getElementById('ms-note').value=d?d.note:'';
-  var ps=document.getElementById('ms-pt');popPartnerSel(ps);if(d)ps.value=d.partner||DB.partners[0];
+  var mspt=document.getElementById('ms-pt');
+  if(mspt){mspt.value=d?d.partner:'EMWEAR';}
   (d&&d.prods?d.prods:[{}]).forEach(p=>addSXPR(p));
   openMo('modal-sx');
 }
@@ -1915,9 +1905,11 @@ function parseSX(){
   var orders={};
   lines.forEach(line=>{
     var parts=line.split(/\s*[-–—]\s*/);if(parts.length<2)return;
-    var partner=parts[0].trim();
-    var matchPt=DB.partners.find(p=>p.toLowerCase()===partner.toLowerCase()||partner.toLowerCase().includes(p.toLowerCase()));
-    if(matchPt)partner=matchPt;
+    var partner=parts[0].trim().toUpperCase();
+    // Match EMWEAR or EMCHIC
+    if(partner.includes('EMWEAR')||partner.includes('WEAR'))partner='EMWEAR';
+    else if(partner.includes('EMCHIC')||partner.includes('CHIC'))partner='EMCHIC';
+    else partner='EMWEAR'; // default
     var sizeStr=parts[parts.length-1];
     var sizes={};
     var szM=sizeStr.match(/(\d+)\s*(S|M|L|XL)\b/gi);
@@ -1970,12 +1962,18 @@ function renderSX(){
     var recv=sxPass(d),fail=sxFail(d),tot=pTot(d.prods),rem=Math.max(0,tot-recv);
     var pct=tot>0?Math.round(recv/tot*100):0,full=recv>=tot&&tot>0;
     var stOpts=Object.entries(GSX).map(([k,v])=>'<option value="'+k+'"'+(d.status===k?' selected':'')+'>'+v.l+'</option>').join('');
-    var ptCls=d.partner==='BUPBES'?'p-bup':d.partner==='NAN'?'p-nan':'p-pt';
+    var ptCls=d.partner==='EMWEAR'?'p-emw':d.partner==='EMCHIC'?'p-emc':'p-pt';
     var gcCls='gc '+(full?'done':'app')+(DB.ssx.has(d.id)?' sel':'');
-    var spRows=(d.prods||[]).map((p,i)=>'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
-      '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
-      ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
-      '<td class="td-tot">'+szT(p.sizes||{})+'</td></tr>').join('');
+    var _rv={};['S','M','L','XL'].forEach(s=>{_rv[s]=(d.batches||[]).reduce((a,b)=>a+((b.pass||{})[s]||0),0);});
+    var spRows=(d.prods||[]).map((p,i)=>{
+      var tot=szT(p.sizes||{});
+      var rem=['S','M','L','XL'].reduce((a,s)=>a+Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0)),0);
+      return'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
+        '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
+        ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
+        '<td class="td-tot">'+tot+'</td>'+
+        '<td class="td-tot" style="padding-right:14px;font-weight:700;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?rem:'✓')+'</td></tr>';
+    }).join('');
         var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
       var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
       return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':'<span class="del-plan-sx" data-sid="'+esc(d.id)+'" data-pid="'+esc(pl.id)+'" style="cursor:pointer;opacity:.4;margin-left:4px">✕</span>')+'</div>';
@@ -1998,7 +1996,7 @@ function renderSX(){
       '<div class="gpg"><span class="gpg-pct"'+(full?' style="color:var(--grn)"':pct>=50?'':' style="color:var(--warn)"')+'>'+pct+'%</span>'+
       '<div class="gpg-bar"><div class="gpg-fill'+(full?' ok':pct>=50?'':' wa')+'" style="width:'+pct+'%"></div></div>'+
       '<span class="gpg-info"><b>'+recv+'</b> / '+tot+' sp &nbsp;·&nbsp; <span class="'+(rem>0?'wa':'ok')+'">'+( rem>0?'còn thiếu '+rem:'hoàn thành')+'</span></span></div>'+
-      '<table class="gct"><thead><tr class="gct-hdr"><td class="td-n">#</td><td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td><td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td><td class="td-tot" style="padding-right:14px">Tổng</td></tr></thead><tbody>'+spRows+'</tbody></table>'+
+      '<table class="gct"><thead><tr class="gct-hdr"><td class="td-n">#</td><td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td><td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td><td class="td-tot" style="padding-right:14px">Tổng</td><td class="td-tot" style="padding-right:14px;color:var(--warn)">Còn lại</td></tr></thead><tbody>'+spRows+'</tbody></table>'+
       '<div class="gcf"><div class="gcf-half"><span class="gcf-lbl">Dự kiến</span>'+planChips+'</div><div class="gcf-half"><span class="gcf-lbl">Đã về</span>'+batchChips+'</div></div></div>';
   }).join('');
   // Event delegation for SX list
