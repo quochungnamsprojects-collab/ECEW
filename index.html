@@ -718,7 +718,6 @@ DH047318 - 11/5 lên hàng
 </div>
 </div>
 
-<div>
 
 <!-- MODAL ĐỢT DỰ KIẾN -->
 <div class="ov" id="modal-plan">
@@ -1790,6 +1789,127 @@ function statCard(l,v,a){return'<div class="sc"><div class="sc-l">'+l+'</div><di
 // ============================================================
 // ADMIN — USER MANAGEMENT
 // ============================================================
+
+// ============================================================
+// RENDER SẢN XUẤT
+// ============================================================
+function renderSX(){
+  if(!DB.sx)DB.sx=[];
+  var list=DB.sx.map(function(d){
+    if(!d||typeof d!=='object')return null;
+    if(!d.id)d.id=uid();
+    d.code=String(d.code||'');d.partner=String(d.partner||'');d.status=String(d.status||'sent');
+    if(!Array.isArray(d.prods))d.prods=[];
+    if(!Array.isArray(d.batches))d.batches=[];
+    if(!Array.isArray(d.plans))d.plans=[];
+    return d;
+  }).filter(Boolean);
+
+  var tSP=list.reduce(function(s,x){return s+pTot(x.prods);},0);
+  var tP=list.reduce(function(s,x){return s+sxPass(x);},0);
+  var tF=list.reduce(function(s,x){return s+sxFail(x);},0);
+  var tShort=list.filter(function(d){return sxPass(d)<pTot(d.prods)&&d.status!=='done';}).length;
+  var stsSX=document.getElementById('sts-sx');
+  if(stsSX)stsSX.innerHTML=statCard('Đơn SX',list.length)+statCard('Tổng SP',tSP)+statCard('QC đạt',tP,'g')+statCard('QC lỗi',tF,'r')+statCard('Chưa đủ',tShort,'a');
+
+  var cntSX=document.getElementById('cnt-sx');
+  if(cntSX){cntSX.style.display=tShort>0?'':'none';cntSX.textContent=tShort;}
+
+  var fil=list.filter(function(d){
+    var st=DB.fsx.st;
+    if(st==='partial')return sxPass(d)<pTot(d.prods)&&d.status!=='done';
+    if(st!=='all')return d.status===st;
+    return true;
+  });
+  if(DB.fsx.pt&&DB.fsx.pt!=='all')fil=fil.filter(function(d){return d.partner===DB.fsx.pt;});
+  if(DB.ss)fil=fil.filter(function(d){
+    return smartMatch(d.code,DB.ss)||smartMatch(d.partner,DB.ss)||(d.prods||[]).some(function(p){return smartMatch(p.name,DB.ss);});
+  });
+
+  var elList=document.getElementById('list-sx');
+  if(!elList)return;
+  if(!fil.length){elList.innerHTML='<div class="empty"><div class="empty-ico">🏗️</div>Chưa có đơn nào</div>';return;}
+
+  var isStaff=CU&&CU.role==='staff';
+  elList.innerHTML=fil.slice().reverse().map(function(d){
+    var recv=sxPass(d),fail=sxFail(d),tot=pTot(d.prods),rem=Math.max(0,tot-recv);
+    var pct=tot>0?Math.round(recv/tot*100):0,full=recv>=tot&&tot>0;
+    var stOpts=Object.entries(GSX).map(function(e){return'<option value="'+e[0]+'"'+(d.status===e[0]?' selected':'')+'>'+e[1].l+'</option>';}).join('');
+    var ptCls=d.partner==='EMWEAR'?'p-emw':d.partner==='EMCHIC'?'p-emc':'p-pt';
+
+    // Received per size
+    var _rv={};['S','M','L','XL'].forEach(function(s){_rv[s]=(d.batches||[]).reduce(function(a,b){return a+((b.pass||{})[s]||0);},0);});
+
+    var spRows=(d.prods||[]).map(function(p,i){
+      var tot2=szT(p.sizes||{});
+      var remBySz={};var rem2=0;
+      ['S','M','L','XL'].forEach(function(s){var r=Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0));remBySz[s]=r;rem2+=r;});
+      var remStr=rem2>0?['S','M','L','XL'].filter(function(s){return remBySz[s]>0;}).map(function(s){return s+'·'+remBySz[s];}).join(' '):'✓';
+      return'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
+        '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
+        ['S','M','L','XL'].map(function(s){return(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>';}).join('')+
+        '<td class="td-tot">'+tot2+'</td>'+
+        '<td class="td-tot" style="padding-right:14px;font-weight:600;font-size:12px;color:'+(rem2>0?'var(--warn)':'var(--grn)')+'">'+remStr+'</td></tr>';
+    }).join('');
+
+    var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
+      var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
+      return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':'<span class="del-plan-sx" data-sid="'+esc(d.id)+'" data-pid="'+esc(pl.id)+'" style="cursor:pointer;opacity:.4;margin-left:4px">✕</span>')+'</div>';
+    }).join(''):'<span class="empty-note">Chưa có kế hoạch</span>';
+
+    var batchChips=(d.batches&&d.batches.length)?d.batches.map(function(b,i){
+      var sz=Object.entries(b.pass||{}).map(function(e){return e[0]+'+'+e[1];}).join(' ');
+      return'<div class="batch-chip"><b>Đợt '+(i+1)+'</b> · '+fD(b.date)+(sz?' · '+sz:'')+'</div>';
+    }).join(''):'<span class="empty-note">Chưa có đợt nào</span>';
+
+    return'<div class="gc'+(full?' done':' app')+(DB.ssx&&DB.ssx.has(d.id)?' sel':'')+'">'+
+      '<div class="gch">'+
+      '<div class="gch-chk"><input type="checkbox" '+(DB.ssx&&DB.ssx.has(d.id)?'checked':'')+' data-sxid="'+d.id+'" class="sx-chk"></div>'+
+      '<div class="gch-main">'+
+        '<span class="gccode">'+esc(d.code)+'</span>'+
+        '<span class="pill '+ptCls+'">'+esc(d.partner)+'</span>'+
+        (isStaff?'<span class="pill" style="background:var(--s2)">'+((GSX[d.status]||{}).l||d.status)+'</span>':
+          '<select class="gcst-sel" data-sxid2="'+d.id+'" onchange="chStSX(this.dataset.sxid2,this.value)">'+stOpts+'</select>')+
+        (full?'<span class="pill p-up">Đủ hàng</span>':'<span style="font-size:12px;color:var(--tx2)">Còn thiếu <b style="color:var(--warn)">'+rem+'</b></span>')+
+        '<span class="gcspacer"></span>'+
+        '<div class="gcmeta"><span>Đặt: <b>'+fDF(d.date)+'</b></span>'+(d.eta?'<span>DK: <b>'+fDF(d.eta)+'</b></span>':'')+'</div>'+
+        getCreatorPill(d.createdBy)+
+      '</div>'+
+      (isStaff?'':'<div class="gch-r">'+
+        '<button class="gact g" data-batch-sx="'+d.id+'">+ Đợt thực</button>'+
+        '<button class="gact b" data-plan-sx="'+d.id+'">+ Dự kiến</button>'+
+        '<button class="gact" data-edit-sx="'+d.id+'">Sửa</button>'+
+        '<button class="gact del" data-del-sx="'+d.id+'">Xoá</button>'+
+      '</div>')+
+      '</div>'+
+      '<div class="gpg">'+
+        '<span class="gpg-pct"'+(full?' style="color:var(--grn)"':pct>=50?'':' style="color:var(--warn)"')+'>'+pct+'%</span>'+
+        '<div class="gpg-bar"><div class="gpg-fill'+(full?' ok':pct>=50?'':' wa')+'" style="width:'+pct+'%"></div></div>'+
+        '<span class="gpg-info"><b>'+recv+'</b> / '+tot+' sp · <span class="'+(rem>0?'wa':'ok')+'">'+(rem>0?'còn thiếu '+rem:'hoàn thành')+'</span></span>'+
+      '</div>'+
+      '<table class="gct"><thead><tr class="gct-hdr">'+
+        '<td class="td-n">#</td>'+
+        '<td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td>'+
+        '<td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td>'+
+        '<td class="td-tot">Tổng</td>'+
+        '<td class="td-tot" style="padding-right:14px;color:var(--warn)">Còn lại</td>'+
+      '</tr></thead><tbody>'+spRows+'</tbody></table>'+
+      '<div class="gcf">'+
+        '<div class="gcf-half"><span class="gcf-lbl">Dự kiến</span>'+planChips+'</div>'+
+        '<div class="gcf-half"><span class="gcf-lbl">Đã về</span>'+batchChips+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // Event delegation
+  elList.querySelectorAll('.sx-chk').forEach(function(cb){cb.onchange=function(){togSelSX(this.dataset.sxid);};});
+  elList.querySelectorAll('[data-del-sx]').forEach(function(b){b.onclick=function(){delSX(this.dataset.delSx);};});
+  elList.querySelectorAll('[data-batch-sx]').forEach(function(b){b.onclick=function(){openBatch(this.dataset.batchSx);};});
+  elList.querySelectorAll('[data-plan-sx]').forEach(function(b){b.onclick=function(){openPlanSX(this.dataset.planSx);};});
+  elList.querySelectorAll('[data-edit-sx]').forEach(function(b){b.onclick=function(){openSXModal(this.dataset.editSx);};});
+  elList.querySelectorAll('.del-plan-sx').forEach(function(b){b.onclick=function(){delPlanSX(this.dataset.sid,this.dataset.pid);};});
+}
+
 function renderAdmin(){
   var users=USERS_CACHE.length?USERS_CACHE:OFFLINE_USERS;
   document.getElementById('admin-list').innerHTML=
