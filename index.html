@@ -554,8 +554,8 @@ DH047318 - 11/5 lên hàng
           </div>
           <div class="abox" id="sx-autobox">
             <div class="abox-t">✦ Nhập nhanh hàng sản xuất</div>
-            <textarea class="ata" id="sx-in" style="min-height:70px" placeholder="EMWEAR - Váy Ngắn Tơ Bèo - Trắng - 5S 10M 5L&#10;EMCHIC - Jumpsuit Betty - Đen - 20M 10L"></textarea>
-            <div class="ahint">Mỗi dòng = 1 SP: <code>EMWEAR/EMCHIC - tên SP - màu - 5S 10M 5L</code></div>
+            <textarea class="ata" id="sx-in" style="min-height:70px" placeholder="Emwear&#10;Py túi vỏ sò - Trắng - 16&#10;Choàng tay ngắn viền ren - Hồng - 6&#10;&#10;Emchic&#10;Đầm tua rua - Hồng - 10S 10M&#10;Đầm tua rua EC - Vàng - 5L"></textarea>
+            <div class="ahint">Brand header: <code>Emwear</code> / <code>Emchic</code> · SP: <code>Tên - Màu - 16</code> hoặc <code>Tên - 10S 5M</code> · Dòng trắng = đơn mới</div>
             <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
               <button class="btn btn-a" onclick="parseSX()">Tạo đơn</button>
               <button class="btn" onclick="document.getElementById('sx-in').value=''">Xoá</button>
@@ -704,34 +704,21 @@ DH047318 - 11/5 lên hàng
 
 <!-- MODAL NHẬP ĐỢT HÀNG -->
 <div class="ov" id="modal-batch">
-<div class="mo sm">
+<div class="mo" style="max-width:560px">
   <div class="mo-t">Nhập đợt hàng về</div>
-  <input type="hidden" id="b-gcid">
-  <div class="fr c2">
+  <div class="fr c2" style="margin-bottom:10px">
     <div class="fg"><label class="fl">Ngày hàng về *</label><input class="fi" type="date" id="b-date"></div>
     <div class="fg"><label class="fl">Ngày giao shop</label><input class="fi" type="date" id="b-deliver"></div>
   </div>
-  <div class="fg"><label class="fl" style="color:var(--grn)">QC ĐẠT theo size</label>
-    <div class="szg">
-      <div class="sw"><div class="sw-l" style="color:var(--grn)">S ✓</div><input type="number" id="bp-S" placeholder="0" min="0"></div>
-      <div class="sw"><div class="sw-l" style="color:var(--grn)">M ✓</div><input type="number" id="bp-M" placeholder="0" min="0"></div>
-      <div class="sw"><div class="sw-l" style="color:var(--grn)">L ✓</div><input type="number" id="bp-L" placeholder="0" min="0"></div>
-      <div class="sw"><div class="sw-l" style="color:var(--grn)">XL ✓</div><input type="number" id="bp-XL" placeholder="0" min="0"></div>
-    </div>
-  </div>
-  <div class="fg"><label class="fl" style="color:var(--red)">QC LỖI theo size</label>
-    <div class="szg">
-      <div class="sw"><div class="sw-l" style="color:var(--red)">S ✗</div><input type="number" id="bf-S" placeholder="0" min="0"></div>
-      <div class="sw"><div class="sw-l" style="color:var(--red)">M ✗</div><input type="number" id="bf-M" placeholder="0" min="0"></div>
-      <div class="sw"><div class="sw-l" style="color:var(--red)">L ✗</div><input type="number" id="bf-L" placeholder="0" min="0"></div>
-      <div class="sw"><div class="sw-l" style="color:var(--red)">XL ✗</div><input type="number" id="bf-XL" placeholder="0" min="0"></div>
-    </div>
-  </div>
+  <!-- SP rows — filled by openBatch() -->
+  <div id="b-sp-rows"></div>
   <div class="fg"><label class="fl">Ghi chú</label><input class="fi" id="b-note" placeholder="Thiếu size L..."></div>
   <div class="fg"><label class="fl">Mô tả hàng lỗi</label><textarea class="fi" id="b-err" rows="2" placeholder="3 cái lỗi đường may..."></textarea></div>
   <div class="mo-f"><button class="btn" onclick="closeMo('modal-batch')">Huỷ</button><button class="btn btn-a" onclick="saveBatch()">Lưu đợt</button></div>
 </div>
 </div>
+
+<div>
 
 <!-- MODAL ĐỢT DỰ KIẾN -->
 <div class="ov" id="modal-plan">
@@ -1324,16 +1311,92 @@ function delGC(id){if(CU&&CU.role==='staff')return;if(confirm('Xoá đơn này?'
 function chStGC(id,v){if(CU&&CU.role==='staff')return;var d=DB.gc.find(x=>x.id===id);if(!d)return;d.status=v;save();renderGC();updateBadges();}
 
 // BATCH
-function openBatch(id){if(CU&&CU.role==='staff')return;DB.bT=id;DB.batchMode=null;document.getElementById('b-date').value=td();['b-deliver','b-note','b-err'].forEach(x=>document.getElementById(x).value='');['S','M','L','XL'].forEach(s=>{document.getElementById('bp-'+s).value='';document.getElementById('bf-'+s).value='';});openMo('modal-batch');}
+function openBatch(id){
+  if(CU&&CU.role==='staff')return;
+  DB.bT=id;DB.batchMode=null;
+  var isSX=false; // GC path
+  var gc=DB.gc.find(x=>x.id===id);
+  if(!gc){gc=(DB.sx||[]).find(x=>x.id===id);isSX=true;}
+  if(!gc)return;
+  DB.batchMode=isSX?'sx':null;
+  document.getElementById('b-date').value=td();
+  ['b-deliver','b-note','b-err'].forEach(x=>document.getElementById(x).value='');
+  // Build per-SP rows
+  var prods=gc.prods||[];
+  var rowsHtml=prods.map(function(p,pi){
+    var sizes=Object.keys(p.sizes||{}).filter(function(s){return p.sizes[s]>0;});
+    if(!sizes.length)sizes=['S','M','L','XL'];
+    var passInputs=sizes.map(function(s){
+      return'<div class="b-sz-item"><div class="b-sz-lbl ok">'+s+' ✓</div>'+
+        '<input class="b-sz-inp" type="number" min="0" placeholder="0" id="bp-'+pi+'-'+s+'" style="border-color:rgba(45,138,78,.3)"></div>';
+    }).join('');
+    var failInputs=sizes.map(function(s){
+      return'<div class="b-sz-item"><div class="b-sz-lbl er">'+s+' ✗</div>'+
+        '<input class="b-sz-inp" type="number" min="0" placeholder="0" id="bf-'+pi+'-'+s+'" style="border-color:rgba(192,57,43,.3)"></div>';
+    }).join('');
+    return'<div class="b-sp-row">'+
+      '<div class="b-sp-name">'+(pi+1).toString().padStart(2,'0')+'. '+esc(p.name)+(p.color?' · '+esc(p.color):'')+'</div>'+
+      '<div class="b-sz-row" style="margin-bottom:5px">'+passInputs+'</div>'+
+      '<div class="b-sz-row">'+failInputs+'</div>'+
+      '</div>';
+  }).join('');
+  document.getElementById('b-sp-rows').innerHTML=rowsHtml||
+    '<div class="b-sz-row" style="flex-wrap:wrap">'+
+    ['S','M','L','XL'].map(function(s){return'<div class="b-sz-item"><div class="b-sz-lbl ok">'+s+' ✓</div><input class="b-sz-inp" type="number" min="0" placeholder="0" id="bp-0-'+s+'" style="border-color:rgba(45,138,78,.3)"></div>';}).join('')+
+    ['S','M','L','XL'].map(function(s){return'<div class="b-sz-item"><div class="b-sz-lbl er">'+s+' ✗</div><input class="b-sz-inp" type="number" min="0" placeholder="0" id="bf-0-'+s+'" style="border-color:rgba(192,57,43,.3)"></div>';}).join('')+
+    '</div>';
+  openMo('modal-batch');
+}
+
+function openBatchSX(id){DB.bT=id;DB.batchMode='sx';openBatch(id);}
+
 function saveBatch(){
   var isSX=DB.batchMode==='sx';
-  var gc=isSX?(DB.sx||[]).find(x=>x.id===DB.bT):DB.gc.find(x=>x.id===DB.bT);if(!gc)return;
-  var pass={},fail={};['S','M','L','XL'].forEach(s=>{var p=parseInt(document.getElementById('bp-'+s).value)||0,f=parseInt(document.getElementById('bf-'+s).value)||0;if(p>0)pass[s]=p;if(f>0)fail[s]=f;});
-  gc.batches=gc.batches||[];gc.batches.push({id:uid(),date:document.getElementById('b-date').value,deliver:document.getElementById('b-deliver').value,pass,fail,note:document.getElementById('b-note').value,error:document.getElementById('b-err').value});
+  var gc=isSX?(DB.sx||[]).find(x=>x.id===DB.bT):DB.gc.find(x=>x.id===DB.bT);
+  if(!gc)return;
+  var prods=gc.prods||[];
+  // Aggregate pass/fail across all SPs
+  var totalPass={},totalFail={};
+  var spPass=[];
+  if(prods.length>0){
+    prods.forEach(function(p,pi){
+      var sizes=Object.keys(p.sizes||{}).filter(function(s){return p.sizes[s]>0;});
+      if(!sizes.length)sizes=['S','M','L','XL'];
+      var pObj={},fObj={};
+      sizes.forEach(function(s){
+        var pv=parseInt((document.getElementById('bp-'+pi+'-'+s)||{}).value)||0;
+        var fv=parseInt((document.getElementById('bf-'+pi+'-'+s)||{}).value)||0;
+        if(pv>0){pObj[s]=pv;totalPass[s]=(totalPass[s]||0)+pv;}
+        if(fv>0){fObj[s]=fv;totalFail[s]=(totalFail[s]||0)+fv;}
+      });
+      spPass.push({name:p.name,pass:pObj,fail:fObj});
+    });
+  } else {
+    // Fallback: single-SP mode (ids: bp-0-S etc)
+    ['S','M','L','XL'].forEach(function(s){
+      var pv=parseInt((document.getElementById('bp-0-'+s)||{}).value)||0;
+      var fv=parseInt((document.getElementById('bf-0-'+s)||{}).value)||0;
+      if(pv>0)totalPass[s]=pv;if(fv>0)totalFail[s]=fv;
+    });
+  }
+  gc.batches=gc.batches||[];
+  gc.batches.push({
+    id:uid(),
+    date:document.getElementById('b-date').value,
+    deliver:document.getElementById('b-deliver').value,
+    pass:totalPass,fail:totalFail,
+    spDetail:spPass,
+    note:document.getElementById('b-note').value,
+    error:document.getElementById('b-err').value
+  });
+  var passQty=Object.values(totalPass).reduce(function(a,b){return a+b;},0);
+  var tot=isSX?sxPass(gc):gcPass(gc);
   if((isSX?sxPass(gc):gcPass(gc))>=pTot(gc.prods)&&pTot(gc.prods)>0)gc.status='done';
-  save();closeMo('modal-batch');if(isSX)renderSX();else renderGC();DB.batchMode=null;updateBadges();
+  save();closeMo('modal-batch');
+  if(isSX)renderSX();else renderGC();
+  DB.batchMode=null;updateBadges();
 }
-// PLAN
+
 function openPlan(id){if(CU&&CU.role==='staff')return;DB.plT=id;document.getElementById('pl-date').value=td();document.getElementById('pl-note').value='';['S','M','L','XL'].forEach(s=>document.getElementById('pl-'+s).value='');openMo('modal-plan');}
 function savePlan(){
   var isSX=DB.planMode==='sx';
@@ -1892,7 +1955,7 @@ function delSX(id){if(CU&&CU.role==='staff')return;if(confirm('Xoá đơn này?'
 function chStSX(id,v){if(CU&&CU.role==='staff')return;var d=(DB.sx||[]).find(x=>x.id===id);if(!d)return;d.status=v;save();renderSX();updateBadges();}
 
 // SX Batch & Plan (reuse modal-batch and modal-plan with bT/plT targeting sx)
-function openBatchSX(id){DB.bT=id;DB.batchMode='sx';document.getElementById('b-date').value=td();['b-deliver','b-note','b-err'].forEach(x=>document.getElementById(x).value='');['S','M','L','XL'].forEach(s=>{document.getElementById('bp-'+s).value='';document.getElementById('bf-'+s).value='';});openMo('modal-batch');}
+
 function openPlanSX(id){DB.plT=id;DB.planMode='sx';document.getElementById('pl-date').value=td();document.getElementById('pl-note').value='';['S','M','L','XL'].forEach(s=>document.getElementById('pl-'+s).value='');openMo('modal-plan');}
 
 // Bulk
@@ -1908,115 +1971,116 @@ function bulkStSX(status){
 // Parse SX (same format as GC)
 function parseSX(){
   if(CU&&CU.role==='staff')return;
-  var raw=document.getElementById('sx-in').value.trim();if(!raw){alert('Nhập nội dung');return;}
-  var lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
-  var orders={};
-  lines.forEach(line=>{
-    var parts=line.split(/\s*[-–—]\s*/);if(parts.length<2)return;
-    var partner=parts[0].trim().toUpperCase();
-    // Match EMWEAR or EMCHIC
-    if(partner.includes('EMWEAR')||partner.includes('WEAR'))partner='EMWEAR';
-    else if(partner.includes('EMCHIC')||partner.includes('CHIC'))partner='EMCHIC';
-    else partner='EMWEAR'; // default
-    var sizeStr=parts[parts.length-1];
-    var sizes={};
-    var szM=sizeStr.match(/(\d+)\s*(S|M|L|XL)\b/gi);
-    if(szM)szM.forEach(sm=>{var m=sm.match(/(\d+)\s*(S|M|L|XL)/i);if(m)sizes[m[2].toUpperCase()]=parseInt(m[1]);});
-    var name=parts[1]?parts[1].trim():'';
-    var color='';if(parts.length>=4){color=parts[parts.length-2].trim();}
-    if(!name)return;
-    if(!orders[partner])orders[partner]=[];
-    orders[partner].push({name,color,sizes});
-  });
-  if(!Object.keys(orders).length){alert('Không nhận diện được dòng nào.');return;}
+  var raw=document.getElementById('sx-in').value;
+  if(!raw.trim()){alert('Nhập nội dung');return;}
   if(!DB.sx)DB.sx=[];
-  var created=[];
-  Object.entries(orders).forEach(([partner,prods])=>{
-    var code='SX'+Date.now().toString().slice(-5)+Math.random().toString(36).slice(2,4).toUpperCase();
-    DB.sx.push({id:uid(),code,partner,date:td(),eta:'',status:'sent',note:'',prods,batches:[],plans:[],createdBy:CU?CU.username:'',createdAt:td()});
-    created.push(partner+' ('+prods.length+' SP)');
+
+  var COLOR_SX=['trắng','white','kem','cream','hồng','pink','hồng thạch anh','rose quartz',
+    'đỏ','red','vàng','yellow','gold','vàng vani','vanilla','xanh dương','blue','navy',
+    'xanh navy','cobalt','xanh ngọc','teal','xanh rêu','green','olive','nude','đen','black',
+    'xám','grey','gray','be','beige','ivory','tím','purple','lavender','cam','orange','nâu',
+    'brown','pastel','xanh mint','mint','trắng kem','vani','trắng sữa','be hồng','xanh'];
+
+  function isColorSX(t){
+    var tl=(t||'').toLowerCase().trim();
+    return COLOR_SX.some(function(c){return tl===c||tl.startsWith(c+' ')||tl.endsWith(' '+c)||tl.includes(c);});
+  }
+
+  // Split preserving blank lines as group separators
+  var lines=raw.split('\n').map(function(l){return l.trim();});
+  var results=[];
+  var curBrand='EMWEAR';
+  var curGroup=[];
+
+  function flushGroup(){
+    if(curGroup.length){
+      results.push({brand:curBrand,prods:curGroup.slice()});
+      curGroup=[];
+    }
+  }
+
+  lines.forEach(function(line){
+    // Blank line = new order (same brand)
+    if(!line){flushGroup();return;}
+    // Brand header
+    var low=line.toLowerCase().replace(/[\s\-]/g,'');
+    if(low.startsWith('emwear')||low==='ew'){flushGroup();curBrand='EMWEAR';return;}
+    if(low.startsWith('emchic')||low==='ec'){flushGroup();curBrand='EMCHIC';return;}
+
+    // SP line
+    var noteParts=(line.match(/\(([^)]+)\)/g)||[]).map(function(x){return x.replace(/^\(|\)$/g,'').trim();});
+    var work=line.replace(/\(([^)]+)\)/g,' ').replace(/\s+/g,' ').trim();
+    var parts=work.split(/\s*-\s*/).map(function(p){return p.trim();}).filter(Boolean);
+    if(!parts.length)return;
+
+    var name=parts[0];
+    var color='';
+    var sizes={};
+    var extraNotes=[];
+    var hasSz=false;
+
+    // Last part: try sizes
+    if(parts.length>1){
+      var last=parts[parts.length-1];
+      // "10S 10M 5L" format
+      var szM=last.match(/(\d+)\s*(S|M|L|XL)\b/gi);
+      if(szM&&szM.length){
+        szM.forEach(function(sm){var m=sm.match(/(\d+)\s*(S|M|L|XL)/i);if(m)sizes[m[2].toUpperCase()]=parseInt(m[1]);});
+        hasSz=true;
+      }
+      // Plain number format
+      if(!hasSz&&/^\d+$/.test(last)){
+        var qty=parseInt(last);
+        if(curBrand==='EMWEAR'){
+          sizes={S:qty};
+        } else {
+          // EMCHIC: distribute S/M/L
+          var e=Math.floor(qty/3),r=qty%3;
+          sizes={S:e+(r>0?1:0),M:e+(r>1?1:0),L:e};
+          ['S','M','L'].forEach(function(s){if(!sizes[s])delete sizes[s];});
+        }
+        hasSz=true;
+      }
+    }
+
+    // Middle parts: color or note
+    for(var i=1;i<parts.length-(hasSz?1:0);i++){
+      var p=parts[i];
+      if(!color&&isColorSX(p)){color=p;}
+      else{extraNotes.push(p);}
+    }
+
+    // Build note
+    var note=[].concat(noteParts,extraNotes).filter(function(n){
+      return n&&n.toLowerCase()!==color.toLowerCase();
+    }).join(' · ');
+
+    if(name.trim())curGroup.push({name:name.trim(),color:color,sizes:sizes,note:note});
   });
-  save();document.getElementById('sx-in').value='';
-  var ok=document.getElementById('sx-ok');ok.textContent='Đã tạo '+created.length+' đơn: '+created.join(', ');ok.style.display='inline';setTimeout(()=>ok.style.display='none',5000);
+  flushGroup();
+
+  if(!results.length){alert('Không nhận diện được đơn nào.\n\nFormat:\nEmwear\nTên SP - Màu - 10\nEmchic\nTên SP - Màu - 5S 10M 5L');return;}
+
+  var created=[];
+  results.forEach(function(r){
+    var code='SX'+Date.now().toString().slice(-4)+Math.random().toString(36).slice(2,5).toUpperCase();
+    DB.sx.push({
+      id:uid(),code:code,partner:r.brand,date:td(),eta:'',
+      status:'sent',note:'',prods:r.prods,batches:[],plans:[],
+      createdBy:CU?CU.username:'',createdAt:td()
+    });
+    created.push(r.brand+' ('+r.prods.length+' SP)');
+  });
+
+  save();
+  document.getElementById('sx-in').value='';
+  var ok=document.getElementById('sx-ok');
+  ok.textContent='Đã tạo '+results.length+' đơn: '+created.join(', ');
+  ok.style.display='inline';
+  setTimeout(function(){ok.style.display='none';},5000);
   renderSX();renderSXPtChips();updateBadges();
 }
 
-// ── RENDER SX ────────────────────────────────────────────────
-function renderSX(){
-  if(!DB.sx)DB.sx=[];
-  var list=DB.sx.map(d=>{
-    if(!d||typeof d!=='object')return null;
-    if(!d.id)d.id=uid();
-    d.code=String(d.code||'');d.partner=String(d.partner||'');d.status=String(d.status||'sent');
-    if(!Array.isArray(d.prods))d.prods=[];
-    if(!Array.isArray(d.batches))d.batches=[];
-    if(!Array.isArray(d.plans))d.plans=[];
-    return d;
-  }).filter(Boolean);
-
-  var tSP=list.reduce((s,x)=>s+pTot(x.prods),0);
-  var tP=list.reduce((s,x)=>s+sxPass(x),0),tF=list.reduce((s,x)=>s+sxFail(x),0);
-  document.getElementById('sts-sx').innerHTML=statCard('Đơn SX',list.length)+statCard('Tổng SP',tSP)+statCard('QC đạt',tP,'g')+statCard('QC lỗi',tF,'r')+statCard('Chưa đủ',list.filter(d=>sxPass(d)<pTot(d.prods)&&d.status!=='done').length,'a');
-
-  var fil=list.filter(d=>{var r=sxPass(d),t=pTot(d.prods),st=DB.fsx.st;
-    if(st==='partial')return r<t&&d.status!=='done';if(st!=='all')return d.status===st;return true;});
-  if(DB.fsx.pt&&DB.fsx.pt!=='all')fil=fil.filter(d=>d.partner===DB.fsx.pt);
-  if(DB.ss)fil=fil.filter(d=>smartMatch(d.code,DB.ss)||smartMatch(d.partner,DB.ss)||(d.prods||[]).some(p=>smartMatch(p.name,DB.ss)));
-
-  var elList=document.getElementById('list-sx');
-  if(!fil.length){elList.innerHTML='<div class="empty"><div class="empty-ico">🏗️</div>Chưa có đơn nào</div>';return;}
-  var isStaff=CU&&CU.role==='staff';
-  elList.innerHTML=fil.slice().reverse().map(d=>{
-    var recv=sxPass(d),fail=sxFail(d),tot=pTot(d.prods),rem=Math.max(0,tot-recv);
-    var pct=tot>0?Math.round(recv/tot*100):0,full=recv>=tot&&tot>0;
-    var stOpts=Object.entries(GSX).map(([k,v])=>'<option value="'+k+'"'+(d.status===k?' selected':'')+'>'+v.l+'</option>').join('');
-    var ptCls=d.partner==='EMWEAR'?'p-emw':d.partner==='EMCHIC'?'p-emc':'p-pt';
-    var gcCls='gc '+(full?'done':'app')+(DB.ssx.has(d.id)?' sel':'');
-    var _rv={};['S','M','L','XL'].forEach(s=>{_rv[s]=(d.batches||[]).reduce((a,b)=>a+((b.pass||{})[s]||0),0);});
-    var spRows=(d.prods||[]).map((p,i)=>{
-      var tot=szT(p.sizes||{});
-      var remBySz={};var rem=0;['S','M','L','XL'].forEach(s=>{var r=Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0));remBySz[s]=r;rem+=r;});
-      return'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
-        '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
-        ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
-        '<td class="td-tot">'+tot+'</td>'+
-        '<td class="td-tot" style="padding-right:14px;font-weight:600;font-size:12px;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?['S','M','L','XL'].filter(s=>remBySz[s]>0).map(s=>s+'·'+remBySz[s]).join(' '):'✓')+'</td></tr>';
-    }).join('');
-        var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
-      var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
-      return'<div class="plan-chip"><b>'+fD(pl.date)+'</b>'+(sz?' · '+sz:'')+(pl.note?' · '+esc(pl.note):'')+(isStaff?'':'<span class="del-plan-sx" data-sid="'+esc(d.id)+'" data-pid="'+esc(pl.id)+'" style="cursor:pointer;opacity:.4;margin-left:4px">✕</span>')+'</div>';
-    }).join(''):'<span class="empty-note">Chưa có kế hoạch</span>';
-
-    var batchChips=(d.batches&&d.batches.length)?d.batches.map((b,i)=>{var sz=Object.entries(b.pass||{}).map(([s,q])=>s+'+'+q).join(' ');return'<div class="batch-chip"><b>Đợt '+(i+1)+'</b> · '+fD(b.date)+(sz?' · '+sz:'')+'</div>';}).join(''):'<span class="empty-note">Chưa có đợt nào</span>';
-    return '<div class="'+gcCls+'"><div class="gch">'+
-      '<div class="gch-chk"><input type="checkbox" '+(DB.ssx.has(d.id)?'checked':'')+' data-sxid="'+d.id+'" class="sx-chk"></div>'+
-      '<div class="gch-main"><span class="gccode">'+esc(d.code)+'</span>'+
-      '<span class="pill '+ptCls+'">'+esc(d.partner||'')+'</span>'+
-      (isStaff?'<span class="pill" style="background:var(--s2)">'+((GSX[d.status]||{}).l||d.status)+'</span>':
-      '<select class="gcst-sel" data-sxid2="'+d.id+'" onchange="chStSX(this.dataset.sxid2,this.value)">'+stOpts+'</select>')+
-      (full?'<span class="pill p-up">Đủ hàng</span>':'<span style="font-size:12px;color:var(--tx2)">Còn thiếu <b style="color:var(--warn)">'+rem+'</b></span>')+
-      '<span class="gcspacer"></span>'+
-      '<div class="gcmeta"><span>Đặt: <b>'+fDF(d.date)+'</b></span>'+(d.eta?'<span>DK: <b>'+fDF(d.eta)+'</b></span>':'')+'</div>'+
-      getCreatorPill(d.createdBy)+'</div>'+
-      (isStaff?'':
-      '<div class="gch-r"><button class="gact g" data-batch-sx="'+d.id+'">+ Đợt thực</button><button class="gact b" data-plan-sx="'+d.id+'">+ Dự kiến</button><button class="gact" data-edit-sx="'+d.id+'">Sửa</button><button class="gact del" data-del-sx="'+d.id+'">Xoá</button></div>')+
-      '</div>'+
-      '<div class="gpg"><span class="gpg-pct"'+(full?' style="color:var(--grn)"':pct>=50?'':' style="color:var(--warn)"')+'>'+pct+'%</span>'+
-      '<div class="gpg-bar"><div class="gpg-fill'+(full?' ok':pct>=50?'':' wa')+'" style="width:'+pct+'%"></div></div>'+
-      '<span class="gpg-info"><b>'+recv+'</b> / '+tot+' sp &nbsp;·&nbsp; <span class="'+(rem>0?'wa':'ok')+'">'+( rem>0?'còn thiếu '+rem:'hoàn thành')+'</span></span></div>'+
-      '<table class="gct"><thead><tr class="gct-hdr"><td class="td-n">#</td><td style="padding-left:12px;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase">Sản phẩm</td><td class="td-sz">S</td><td class="td-sz">M</td><td class="td-sz">L</td><td class="td-sz">XL</td><td class="td-tot" style="padding-right:14px">Tổng</td><td class="td-tot" style="padding-right:14px;color:var(--warn)">Còn lại</td></tr></thead><tbody>'+spRows+'</tbody></table>'+
-      '<div class="gcf"><div class="gcf-half"><span class="gcf-lbl">Dự kiến</span>'+planChips+'</div><div class="gcf-half"><span class="gcf-lbl">Đã về</span>'+batchChips+'</div></div></div>';
-  }).join('');
-  // Event delegation for SX list
-  elList.querySelectorAll('.sx-chk').forEach(function(cb){
-    cb.onchange=function(){togSelSX(this.dataset.sxid);};
-  });
-  elList.querySelectorAll('[data-del-sx]').forEach(function(b){b.onclick=function(){delSX(this.dataset.delSx);};});
-  elList.querySelectorAll('[data-batch-sx]').forEach(function(b){b.onclick=function(){openBatchSX(this.dataset.batchSx);};});
-  elList.querySelectorAll('[data-plan-sx]').forEach(function(b){b.onclick=function(){openPlanSX(this.dataset.planSx);};});
-  elList.querySelectorAll('[data-edit-sx]').forEach(function(b){b.onclick=function(){openSXModal(this.dataset.editSx);};});
-  elList.querySelectorAll('.del-plan-sx').forEach(function(b){b.onclick=function(){delPlanSX(this.dataset.sid,this.dataset.pid);};});
-}
 
 function delPlanSX(sxId,plId){if(CU&&CU.role==='staff')return;var d=(DB.sx||[]).find(x=>x.id===sxId);if(!d)return;d.plans=(d.plans||[]).filter(p=>p.id!==plId);save();renderSX();}
 
