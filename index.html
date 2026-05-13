@@ -410,6 +410,7 @@ body{font-family:var(--font);font-size:14px;color:var(--tx);background:var(--bg)
       <button class="ni on" id="nav-may" onclick="swTab('may')"><span class="ni-ico">✂️</span><span class="ni-lbl">Đơn May</span><span class="ni-bdg" id="cnt-may" style="display:none"></span></button>
       <button class="ni" id="nav-gc" onclick="swTab('gc')"><span class="ni-ico">🧵</span><span class="ni-lbl">Gia Công</span><span class="ni-bdg" id="cnt-gc" style="display:none"></span></button>
       <div class="sb-ttl">BÁO CÁO</div>
+      <button class="ni" id="nav-sx" onclick="swTab('sx')"><span class="ni-ico">🏗️</span><span class="ni-lbl">Sản Xuất</span><span class="ni-bdg" id="cnt-sx" style="display:none"></span></button>
       <button class="ni" id="nav-bc" onclick="swTab('bc')"><span class="ni-ico">📊</span><span class="ni-lbl">Tổng Hợp</span></button>
       <div class="sb-ttl" id="sb-admin-ttl" style="display:none">QUẢN TRỊ</div>
       <button class="ni" id="nav-admin" onclick="swTab('admin')" style="display:none"><span class="ni-ico">⚙️</span><span class="ni-lbl">Tài Khoản</span></button>
@@ -539,20 +540,30 @@ DH047318 - 11/5 lên hàng
             <button class="bb-cancel" onclick="clearSel('gc')">Bỏ chọn</button>
           </div>
           <div class="cl" id="list-gc"></div>
-          <!-- SẢN XUẤT sub-section inside GC tab -->
-          <div class="sx-divider">🏗️ Hàng Sản Xuất</div>
-          <div id="sx-autobox-inline" class="abox" style="margin-bottom:10px">
+        </div>
+
+
+        <!-- ===== SẢN XUẤT ===== -->
+
+
+        <!-- ===== SẢN XUẤT ===== -->
+        <div id="sec-sx" class="sec">
+          <div class="tb">
+            <div class="tb-l"><span class="pg-t">Hàng sản xuất</span></div>
+            <button class="btn btn-a" id="sx-create-btn" onclick="openSXModal()">+ Tạo thủ công</button>
+          </div>
+          <div class="abox" id="sx-autobox">
             <div class="abox-t">✦ Nhập nhanh hàng sản xuất</div>
-            <textarea class="ata" id="sx-in" style="min-height:60px" placeholder="EMWEAR - Váy Ngắn Tơ Bèo - Trắng - 5S 10M 5L&#10;EMCHIC - Jumpsuit Betty - Đen - 20M 10L"></textarea>
+            <textarea class="ata" id="sx-in" style="min-height:70px" placeholder="EMWEAR - Váy Ngắn Tơ Bèo - Trắng - 5S 10M 5L&#10;EMCHIC - Jumpsuit Betty - Đen - 20M 10L"></textarea>
             <div class="ahint">Mỗi dòng = 1 SP: <code>EMWEAR/EMCHIC - tên SP - màu - 5S 10M 5L</code></div>
-            <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-              <button class="btn btn-a" id="sx-create-btn" onclick="parseSX()">Tạo đơn</button>
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+              <button class="btn btn-a" onclick="parseSX()">Tạo đơn</button>
               <button class="btn" onclick="document.getElementById('sx-in').value=''">Xoá</button>
               <span id="sx-ok" style="font-size:12px;color:var(--grn);display:none;font-weight:600"></span>
             </div>
           </div>
           <div class="sts" id="sts-sx"></div>
-          <div class="fb" id="sx-fb" style="margin-bottom:8px">
+          <div class="fb">
             <div class="fb-row">
               <span class="fb-lbl">Brand:</span>
               <div id="sx-pt-filters" style="display:flex;gap:5px;flex-wrap:wrap"></div>
@@ -575,10 +586,6 @@ DH047318 - 11/5 lên hàng
           </div>
           <div class="cl" id="list-sx"></div>
         </div>
-
-
-        <!-- ===== SẢN XUẤT ===== -->
-
 
         <!-- ===== BÁO CÁO ===== -->
         <div id="sec-bc" class="sec">
@@ -1116,13 +1123,14 @@ function toast(msg,type,dur){
 // TAB
 // ============================================================
 function swTab(t){
-  ['may','gc','bc','admin'].forEach(x=>{
+  ['may','gc','sx','bc','admin'].forEach(x=>{
     var s=document.getElementById('sec-'+x);if(s)s.classList.toggle('on',x===t);
     var n=document.getElementById('nav-'+x);if(n)n.classList.toggle('on',x===t);
   });
   if(t==='bc'){popMonths();renderReport();}
   if(t==='admin')renderAdmin();
-  if(t==='gc'){renderPtChips();renderSXPtChips();renderSX();}
+  if(t==='gc')renderPtChips();
+  if(t==='sx'){renderSXPtChips();renderSX();}
   updateBadges();
 }
 function updateBadges(){
@@ -1680,12 +1688,12 @@ function renderGC(){
     var _rv={};['S','M','L','XL'].forEach(s=>{_rv[s]=(d.batches||[]).reduce((a,b)=>a+((b.pass||{})[s]||0),0);});
     var spRows=(d.prods||[]).map((p,i)=>{
       var tot=szT(p.sizes||{});
-      var rem=['S','M','L','XL'].reduce((a,s)=>a+Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0)),0);
+      var remBySz={};var rem=0;['S','M','L','XL'].forEach(s=>{var r=Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0));remBySz[s]=r;rem+=r;});
       return'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
         '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
         ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
         '<td class="td-tot">'+tot+'</td>'+
-        '<td class="td-tot" style="padding-right:14px;font-weight:700;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?rem:'✓')+'</td></tr>';
+        '<td class="td-tot" style="padding-right:14px;font-weight:600;font-size:12px;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?['S','M','L','XL'].filter(s=>remBySz[s]>0).map(s=>s+'·'+remBySz[s]).join(' '):'✓')+'</td></tr>';
     }).join('');
         var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
       var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
@@ -1967,12 +1975,12 @@ function renderSX(){
     var _rv={};['S','M','L','XL'].forEach(s=>{_rv[s]=(d.batches||[]).reduce((a,b)=>a+((b.pass||{})[s]||0),0);});
     var spRows=(d.prods||[]).map((p,i)=>{
       var tot=szT(p.sizes||{});
-      var rem=['S','M','L','XL'].reduce((a,s)=>a+Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0)),0);
+      var remBySz={};var rem=0;['S','M','L','XL'].forEach(s=>{var r=Math.max(0,((p.sizes||{})[s]||0)-(_rv[s]||0));remBySz[s]=r;rem+=r;});
       return'<tr><td class="td-n">'+(i+1).toString().padStart(2,'0')+'</td>'+
         '<td style="padding-left:12px;font-size:13px;font-weight:500">'+esc(p.name)+'</td>'+
         ['S','M','L','XL'].map(s=>(p.sizes||{})[s]?'<td class="td-sz"><b>'+(p.sizes||{})[s]+'</b></td>':'<td class="td-sz em">—</td>').join('')+
         '<td class="td-tot">'+tot+'</td>'+
-        '<td class="td-tot" style="padding-right:14px;font-weight:700;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?rem:'✓')+'</td></tr>';
+        '<td class="td-tot" style="padding-right:14px;font-weight:600;font-size:12px;color:'+(rem>0?'var(--warn)':'var(--grn)')+'">'+(rem>0?['S','M','L','XL'].filter(s=>remBySz[s]>0).map(s=>s+'·'+remBySz[s]).join(' '):'✓')+'</td></tr>';
     }).join('');
         var planChips=(d.plans&&d.plans.length)?d.plans.map(function(pl){
       var sz=Object.entries(pl.sizes||{}).map(function(e){return e[0]+'~'+e[1];}).join(' ');
